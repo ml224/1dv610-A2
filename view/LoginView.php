@@ -9,7 +9,7 @@ class LoginView {
 	private static $cookiePassword = 'LoginView::CookiePassword';	
 	private static $keep = 'LoginView::KeepMeLoggedIn';
 	
-	private static $name = 'LoginView::Username';
+	private static $name = 'LoginView::UserName';
 	private static $password = 'LoginView::Password';
 	private static $loginMessage = 'LoginView::Message';
 
@@ -19,7 +19,7 @@ class LoginView {
 	}
 
 
-	public function generateLoginView($isLoggedIn) {		
+	public function render($isLoggedIn) {		
 		return $isLoggedIn ? 
 		$this->generateLogoutButtonHTML() :
 		$this->generateLoginFormHTML($_SESSION[self::$loginMessage]);
@@ -36,6 +36,7 @@ class LoginView {
 	}
 
 	private function generateLoginFormHTML($message) {
+		$username = $this->getRequestUsername();
 		return '
 			<form method="post" > 
 				<fieldset>
@@ -43,7 +44,7 @@ class LoginView {
 					<p id="' . self::$loginMessage . '">' . $message . '</p>
 					
 					<label for="' . self::$name . '">Username :</label>
-					<input type="text" id="' . self::$name . '" name="' . self::$name . '" value="" />
+					<input type="text" id="' . self::$name . '" name="' . self::$name . '" value="'. $username .'" />
 
 					<label for="' . self::$password . '">Password :</label>
 					<input type="password" id="' . self::$password . '" name="' . self::$password . '" />
@@ -78,17 +79,20 @@ class LoginView {
 	}
 
 	private function loginAttempted(){
-		echo isset($_POST[self::$name]) || isset($_POST[self::$name]);
-		return isset($_POST[self::$name]) || isset($_POST[self::$name]);
+		return isset($_POST[self::$name]);
 	}
 
-	/*
-	public function getSessionUsername() {
-		return $_POST[self::$name];
+	
+	public function getRequestUsername() {
+		if($this->loginAttempted()){
+			return $_SESSION[self::$name];
+		}
 	}
-
-	public function getSessionPassword(){
-		return $_POST[self::$password];
+	
+	public function getRequestPassword() {
+		if($this->loginAttempted()){
+			return $_SESSION[self::$password];
+		}
 	}
-	*/
+	
 }

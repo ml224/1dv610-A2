@@ -1,27 +1,27 @@
 <?php
 
 //INCLUDE THE FILES NEEDED...
-require_once('view/LoginView.php');
-require_once('view/DateTimeView.php');
-require_once('view/LayoutView.php');
-//require_once('controller/LoginRequest.php');
-//require_once('model/User.php');
+require_once('controller/LoginRequest.php');
+
 
 //MAKE SURE ERRORS ARE SHOWN... MIGHT WANT TO TURN THIS OFF ON A PUBLIC SERVER
 error_reporting(E_ALL);
 ini_set('display_errors', 'On');
 
+$loginController = new LoginRequest();
+$loginController->renderPage();
+
+
+
+
 //CREATE OBJECTS OF THE VIEWS
-
-$loginView = new LoginView();
-$dateView = new DateTimeView();
-$layoutView = new LayoutView(false);
-
-$layoutView->render($loginView, $dateView);
+/*$LoginView = new LoginView()
+$LoginRequest = new LoginRequest()
+->render($loginView, $dateView);
+*/
 
 //testing model
-/*$user = new User();
-echo $user->loginMessage("");
+/*echo $user->loginMessage("");
 echo $v->getRequestUserName();
 */
 

@@ -22,7 +22,7 @@ class LayoutView {
           ' . $this->renderIsLoggedIn($this->isLoggedIn) . '
           
           <div class="container">
-              ' . $v->generateLoginView($this->isLoggedIn) . '
+              ' . $v->render($this->isLoggedIn) . '
               
               ' . $dtv->show() . '
           </div>
