@@ -4,13 +4,12 @@
 class LayoutView {
 
   private $isLoggedIn;
-  private $loginView;
 
-  public function LayoutView(bool $isLoggedIn){
+  public function LayoutView($isLoggedIn){
     $this->isLoggedIn = $isLoggedIn;
   }
   
-  public function render(LoginView $v, DateTimeView $dtv) {
+  public function render(LoginView $loginView, DateTimeView $dtv, $message) {
     echo '<!DOCTYPE html>
       <html>
         <head>
@@ -19,10 +18,10 @@ class LayoutView {
         </head>
         <body>
           <h1>Assignment 2</h1>
-          ' . $this->renderIsLoggedIn($this->isLoggedIn) . '
+          ' . $this->loginMessage($this->isLoggedIn) . '
           
           <div class="container">
-              ' . $v->render($this->isLoggedIn) . '
+              ' . $loginView->render($this->isLoggedIn, $message) . '
               
               ' . $dtv->show() . '
           </div>
@@ -31,8 +30,8 @@ class LayoutView {
     ';
   }
   
-  private function renderIsLoggedIn($isLoggedIn) {
-    if ($isLoggedIn) {
+  private function loginMessage() {
+    if ($this->isLoggedIn) {
       return '<h2>Logged in</h2>';
     }
     else {

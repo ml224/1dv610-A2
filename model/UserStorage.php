@@ -1,28 +1,27 @@
 <?php
 
-namespace model;
-session_start();
-
 class UserStorage {
 	private static $SESSION_KEY = __NAMESPACE__ . __CLASS__ .  "user";
-    /*public function loadUser() {
-		if (isset($_SESSION[self::$SESSION_KEY])) {
-			return $_SESSION[self::$SESSION_KEY];
-		} else {
-            //create new user if not saved? 
-			return new User();
-		}
-	}*/
 
 	public function storeUserSession(User $toBeSaved) {
 		$_SESSION[self::$SESSION_KEY] = $toBeSaved;
 	}
 
-	public function setSessionUsername($username){
+	public function isLoggedIn(User $user){
+		if(isset($_SESSION[self::$SESSION_KEY])){
+			return $user == $_SESSION[self::$SESSION_KEY];			
+		} else{
+			return false;
+		}
+	} 
 
+	public function storageSet(){
+		return isset($_SESSION[self::$SESSION_KEY]);
 	}
 
-	public function setSessionPassword($psw){
-
+	public function unsetUserSession(){
+		if(isset($_SESSION[self::$SESSION_KEY])){
+			unset($_SESSION[self::$SESSION_KEY]);
+		}
 	}
 }

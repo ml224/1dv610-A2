@@ -1,6 +1,6 @@
 <?php
 
-session_start();
+
 
 class LoginView {
 	private static $login = 'LoginView::Login';
@@ -13,32 +13,38 @@ class LoginView {
 	private static $password = 'LoginView::Password';
 	private static $loginMessage = 'LoginView::Message';
 
+	private $usernameCorrect;
+	private $passwordCorrect;
 
 	function __construct(){
 		$this->setSessionVariables();
 	}
 
 
-	public function render($isLoggedIn) {		
-		return $isLoggedIn ? 
-		$this->generateLogoutButtonHTML() :
-		$this->generateLoginFormHTML($_SESSION[self::$loginMessage]);
+	public function render($isLoggedIn, $message) {
+		if($isLoggedIn){
+			
+			return $this->generateLogoutButtonHTML($message);
+		} else{
+			return $this->generateLoginFormHTML($message);
+		}
 	}
 
-	private function generateLogoutButtonHTML() {
+	private function generateLogoutButtonHTML($message) {
 		return '
 			<form  method="post" >
+				<p id="' . self::$loginMessage . '">' . $message .'</p>
 				<input type="submit" name="' . self::$logout . '" value="logout"/>
 			</form>
 		';
-				//<p id="' . self::$messageId . '">' . $message .'</p>
 
 	}
 
 	private function generateLoginFormHTML($message) {
 		$username = $this->getRequestUsername();
 		return '
-			<form method="post" > 
+		
+		<form method="post" > 
 				<fieldset>
 					<legend>Login - enter Username and password</legend>
 					<p id="' . self::$loginMessage . '">' . $message . '</p>
@@ -58,41 +64,50 @@ class LoginView {
 		';
 	}
 
-	private function loginMessage(){
-		if(strlen($_POST[self::$name]) === 0){
-			return "Username is missing";
-		}
-		if(strlen($_POST[self::$password]) === 0){
-			return "Password is missing";
-		}
-		else{
-			return "";
-		}
-	}
-
 	private function setSessionVariables(){
 		if($this->loginAttempted()){
-			$_SESSION[self::$loginMessage] = $this->loginMessage();
 			$_SESSION[self::$name] = $_POST[self::$name];
 			$_SESSION[self::$password] = $_POST[self::$password];
+			unset($_SESSION[self::$logout]);
+			unset($_POST[self::$logout]);
 		} 
+		if($this->logoutRequested()){
+			//unset username and password first when logout requested
+			$_SESSION[self::$logout] = $_POST[self::$logout];
+			unset($_SESSION[self::$name]);
+			unset($_SESSION[self::$password]);
+		}
 	}
 
-	private function loginAttempted(){
+
+	//public functions used in controller
+	public function loginAttempted(){
 		return isset($_POST[self::$name]);
+	}
+
+	public function logoutRequested(){
+		return isset($_POST[self::$logout]);
 	}
 
 	
 	public function getRequestUsername() {
-		if($this->loginAttempted()){
+		if(isset($_SESSION[self::$name])){
 			return $_SESSION[self::$name];
 		}
 	}
 	
 	public function getRequestPassword() {
-		if($this->loginAttempted()){
+		if(isset($_SESSION[self::$password])){
 			return $_SESSION[self::$password];
 		}
 	}
-	
 }
+
+
+//so that loginattempted returns false when reloading page
+
+		/*if(!isset($_SESSION[self::$name])){
+			//header("Location: " . $_SERVER['REQUEST_URI']);
+			   //exit();
+			   
+		}*/
