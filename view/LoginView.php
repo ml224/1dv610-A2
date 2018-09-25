@@ -1,8 +1,7 @@
 <?php
 
-
-
 class LoginView {
+
 	private static $login = 'LoginView::Login';
 	private static $logout = 'LoginView::Logout';
 	private static $cookieName = 'LoginView::CookieName';
@@ -12,9 +11,10 @@ class LoginView {
 	private static $name = 'LoginView::UserName';
 	private static $password = 'LoginView::Password';
 	private static $loginMessage = 'LoginView::Message';
-
+	
 	private $usernameCorrect;
 	private $passwordCorrect;
+	private $isLoggedIn;
 
 	function __construct(){
 		$this->setSessionVariables();
@@ -22,12 +22,17 @@ class LoginView {
 
 
 	public function render($isLoggedIn, $message) {
-		if($isLoggedIn){
-			
+		if($isLoggedIn)
 			return $this->generateLogoutButtonHTML($message);
-		} else{
+		else
 			return $this->generateLoginFormHTML($message);
-		}
+	}
+
+	public function renderLogoutPage(){
+		$message = "Bye bye!";
+		return '
+				<p id="' . self::$loginMessage . '">' . $message .'</p>';
+		
 	}
 
 	private function generateLogoutButtonHTML($message) {
@@ -37,13 +42,11 @@ class LoginView {
 				<input type="submit" name="' . self::$logout . '" value="logout"/>
 			</form>
 		';
-
 	}
 
 	private function generateLoginFormHTML($message) {
 		$username = $this->getRequestUsername();
 		return '
-		
 		<form method="post" > 
 				<fieldset>
 					<legend>Login - enter Username and password</legend>
@@ -65,11 +68,11 @@ class LoginView {
 	}
 
 	private function setSessionVariables(){
+		unset($_SESSION[self::$logout]);
+
 		if($this->loginAttempted()){
 			$_SESSION[self::$name] = $_POST[self::$name];
 			$_SESSION[self::$password] = $_POST[self::$password];
-			unset($_SESSION[self::$logout]);
-			unset($_POST[self::$logout]);
 		} 
 		if($this->logoutRequested()){
 			//unset username and password first when logout requested
@@ -78,7 +81,6 @@ class LoginView {
 			unset($_SESSION[self::$password]);
 		}
 	}
-
 
 	//public functions used in controller
 	public function loginAttempted(){

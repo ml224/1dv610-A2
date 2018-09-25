@@ -17,6 +17,8 @@ class DataBase{
     }
 
     public function registerUser($name, $password){
+        $this->verifyNewCredentials($name, $password);
+
         $hashed = password_hash($password, PASSWORD_DEFAULT);
         $this->mysqli->query("INSERT IGNORE INTO users (username, password) VALUES('$name', '$hashed')");
     }
@@ -34,7 +36,16 @@ class DataBase{
     public function comparePassword($name, $psw){
         //will throw exception if username not found
         return password_verify($psw, $this->correctPassword($name));
-        //return $psw === $this->correctPassword($name); 
+    }
+
+    private function verifyNewCredentials($name, $password){
+        //TODO put logic in validator
+        if(strlen($name) < 4){
+            throw new Exception("username must be more than 4 characters long");
+        }
+        if(strlen($password) < 4){
+            throw new exception("password must be more than 4 characters long");
+        }
     }
 
     private function correctPassword($name){

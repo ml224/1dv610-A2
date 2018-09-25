@@ -1,9 +1,7 @@
 <?php
 
 require_once('view/LayoutView.php');
-require_once('view/DateTimeView.php');
 require_once('view/LoginView.php');
-require_once('view/RegisterUserView.php');
 require_once('view/LoginMessage.php');
 
 require_once("model/ValidateInput.php");
@@ -18,8 +16,7 @@ class LoginController
     //constructors
     //view
     private $loginView;
-    private $dateView;
-    private $loginMessage;
+    private $loginMessageView;
 
     //model
     private $validateInput;
@@ -29,67 +26,97 @@ class LoginController
 
     private $username;
     private $password;
-    private $returnWelcome;
-    private $returnBye;
+    private $loginMessage;
 
-    function __construct(){
+    private static $message = "LoginController::LoginMessage";
+
+    function __construct(DataBase $db){
         $this->loginView = new LoginView();
-        $this->dateView = new DateTimeView();
         $this->validator = new ValidateInput();
-        $this->loginMessage = new LoginMessage();
-        $this->userStorage = new UserSessionController();
+        $this->loginMessageView = new LoginMessage();
+        //TODO take away userstorage and use model class directly!
+        $this->userStorage = new UserSessionController($db);
         
         $this->username = $this->loginView->getRequestUsername();
         $this->password = $this->loginView->getRequestPassword();
-    }
 
-    public function renderPage(){
         if($this->nameAndPasswordProvided()){
             $this->userStorage->setUser($this->username, $this->password);
+        }
 
-            if(!$this->userStorage->isLoggedIn() && $this->userStorage->credentialsCorrect()){
+        //unset login message before render - render sets new message if applicable
+        unset($_SESSION[self::$message]);
+    }
+
+    public function renderLoginPageInLayout(LayoutView $layout){
+        if($this->nameAndPasswordProvided()){
+            
+            if($this->successfulLoginAttempt()){
                 $this->userStorage->logIn();
-                $this->returnWelcome = true;
+                $_SESSION[self::$message] = $this->loginMessageView->welcome();
+                
+                //$this->loginMessage = $this->loginMessageView->welcome();
             }
         }
 
-        if($this->loginView->logoutRequested()){
-            $this->userStorage->logOut();
-            $this->returnBye = true;
-            
-        }
 
-        $layout = new LayoutView($this->userStorage->isLoggedIn()); 
-        $layout->render($this->loginView, $this->dateView, $this->loginMessage());
+       
+        //bye bye not rendered if isLoggedIn... Not sure why
+        if($this->isLoggedIn() && $this->loginView->logoutRequested()){
+            $_SESSION[self::$message] = $this->loginMessageView->bye();
+            $this->userStorage->logOut();
+        }           
+        
+
+        $isLoggedIn = $this->userStorage->isLoggedIn();
+        $page = $this->loginView->render($isLoggedIn, $this->loginMessage());
+        return $layout->render($page, $isLoggedIn); 
+    }
+
+    public function renderLogoutPageInLayout(Layoutview $layout){
+        $page = $this->loginView->renderLogoutPage();
+        return $layout->render($page, false); 
+
     }
 
     private function loginMessage(){
-        //user storage class handles db requests, e.g. for wrong username/psw
-        if($this->returnWelcome){
-            return $this->loginMessage->welcome();
-        }
-        if($this->returnBye){
-            return $this->loginMessage->bye();
-        }
-        
-        if($this->loginView->loginAttempted()){
-            if($this->validator->usernameMissing($this->username)){
-                return $this->loginMessage->usernameMissing();
-            }
-            if($this->validator->passwordMissing($this->password)){
-                return $this->loginMessage->passwordMissing();
-            }
+        /*if($this->loginMessage)
+            return $this->loginMessage;
+        */
+        if(isset($_SESSION[self::$message]))
+            return $_SESSION[self::$message];
+        if($this->usernameMissing())
+            return $this->loginMessageView->usernameMissing();
             
-            if($this->userStorage->userSet() && $this->userStorage->passwordOrNameIncorrect()){
-                return $this->loginMessage->wrongNameOrPassword();
-            }
-        } else{
-            return "";
-        }
+        if($this->passwordMissing())
+            return $this->loginMessageView->passwordMissing();
+                
+        if($this->passwordOrNameIncorrect())
+            return $this->loginMessageView->wrongNameOrPassword();
+    }
+
+    private function usernameMissing(){
+        return $this->loginView->loginAttempted() && $this->validator->usernameMissing($this->username); 
+    }
+
+    private function passwordMissing(){
+        return $this->loginView->loginAttempted() && $this->validator->passwordMissing($this->password); 
+    }
+
+    private function passwordOrNameIncorrect(){
+        return $this->loginView->loginAttempted() && $this->userStorage->userSet() && $this->userStorage->passwordOrNameIncorrect();
     }
 
     private function nameAndPasswordProvided(){
         return $this->username && $this->password;
+    }
+
+    private function successfulLoginAttempt(){
+        return !$this->userStorage->isLoggedIn() && $this->userStorage->credentialsCorrect();
+    }
+
+    public function isLoggedIn(){
+        return $this->userStorage->isLoggedIn();
     }
 
 }

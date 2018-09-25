@@ -1,15 +1,24 @@
 <?php
 
+require_once("DateTimeView.php");
 
 class LayoutView {
-
+  private $dateView;
   private $isLoggedIn;
 
-  public function LayoutView($isLoggedIn){
-    $this->isLoggedIn = $isLoggedIn;
+  private static $register = "register";
+  private static $logout = "logout";
+
+  private static $logoutUrl = "?logout=true";
+  private static $registerUrl = "?register=true";
+  private static $backToLoginUrl = "/";
+
+
+  function __construct(){
+    $this->dateView = new DateTimeView();
   }
   
-  public function render(LoginView $loginView, DateTimeView $dtv, $message) {
+  public function render($page, $isLoggedIn) {
     echo '<!DOCTYPE html>
       <html>
         <head>
@@ -18,20 +27,41 @@ class LayoutView {
         </head>
         <body>
           <h1>Assignment 2</h1>
-          ' . $this->loginMessage($this->isLoggedIn) . '
+          ' . $this->loginMessage($isLoggedIn) . '
           
           <div class="container">
-              ' . $loginView->render($this->isLoggedIn, $message) . '
+          
+		          ' . $this->registerLink($isLoggedIn) .'
+              ' . $page . '
               
-              ' . $dtv->show() . '
+              ' . $this->dateView->show() . '
           </div>
          </body>
       </html>
     ';
   }
+
+  public function registerViewRequested(){
+    return isset($_GET[self::$register]);
+  }
+
+  public function loginViewRequested(){
+    return isset($_GET);
+  }
+
+  public function logoutViewRequested(){
+    return isset($_GET[self::$logout]);
+  }
+
+  private function registerLink($isLoggedIn){
+    if($this->registerViewRequested() && !$isLoggedIn || $this->logoutViewRequested())
+      return '<a href="'. self::$backToLoginUrl .'">Back to login</a>';
+    if($this->loginViewRequested() && !$isLoggedIn)
+      return '<a href="'. self::$registerUrl .'">Register a new user</a>';
+  } 
   
-  private function loginMessage() {
-    if ($this->isLoggedIn) {
+  private function loginMessage($isLoggedIn) {
+    if ($isLoggedIn) {
       return '<h2>Logged in</h2>';
     }
     else {

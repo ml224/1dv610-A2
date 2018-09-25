@@ -2,7 +2,6 @@
 
 require_once("model/UserStorage.php");
 require_once("model/User.php");
-require_once("model/DataBase.php");
 
 class UserSessionController{
     private $storage;
@@ -12,9 +11,9 @@ class UserSessionController{
     private $username;
     private $password;
 
-    function __construct(){
+    function __construct(DataBase $db){
         $this->storage = new UserStorage();
-        $this->db = new DataBase();
+        $this->db = $db;
     }
 
     public function userSet(){

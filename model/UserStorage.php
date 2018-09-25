@@ -1,7 +1,7 @@
 <?php
 
 class UserStorage {
-	private static $SESSION_KEY = __NAMESPACE__ . __CLASS__ .  "user";
+	private static $SESSION_KEY =  "Model::User";
 
 	public function storeUserSession(User $toBeSaved) {
 		$_SESSION[self::$SESSION_KEY] = $toBeSaved;

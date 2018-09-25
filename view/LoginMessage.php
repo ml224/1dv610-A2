@@ -14,7 +14,7 @@ class LoginMessage{
     }
 
     public function welcome(){
-        return "Welcome!";
+        return "Welcome";
     }
 
     public function bye(){
