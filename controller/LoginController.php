@@ -5,8 +5,8 @@ require_once('view/LoginView.php');
 require_once('view/LoginMessage.php');
 
 require_once("model/ValidateInput.php");
-
-require_once('UserSessionController.php');
+require_once("model/User.php");
+require_once("model/UserStorage.php");
 
 session_start();
 
@@ -19,58 +19,80 @@ class LoginController
     private $loginMessageView;
 
     //model
-    private $validateInput;
+    private $validator;
     
     //controller
     private $userStorage;
 
+    private $db;
+    private $user;
+    private $cookie;
     private $username;
     private $password;
     private $loginMessage;
+    private $isLoggedIn;
 
     private static $message = "LoginController::LoginMessage";
 
     function __construct(DataBase $db){
+        $this->db = $db;
         $this->loginView = new LoginView();
         $this->validator = new ValidateInput();
         $this->loginMessageView = new LoginMessage();
-        //TODO take away userstorage and use model class directly!
-        $this->userStorage = new UserSessionController($db);
+        $this->userStorage = new UserStorage($db);
         
         $this->username = $this->loginView->getRequestUsername();
         $this->password = $this->loginView->getRequestPassword();
 
         if($this->nameAndPasswordProvided()){
-            $this->userStorage->setUser($this->username, $this->password);
+            $this->user = new User($this->username, $this->password);
         }
+        
+        $this->cookie = $this->loginView->getCookiePassword();
 
         //unset login message before render - render sets new message if applicable
         unset($_SESSION[self::$message]);
     }
 
     public function renderLoginPageInLayout(LayoutView $layout){
-        if($this->nameAndPasswordProvided()){
-            
-            if($this->successfulLoginAttempt()){
-                $this->userStorage->logIn();
-                $_SESSION[self::$message] = $this->loginMessageView->welcome();
-                
-                //$this->loginMessage = $this->loginMessageView->welcome();
+        if($this->isLoggedIn()){
+            $this->isLoggedIn = true;
+
+            if($this->cookie){
+                $_SESSION[self::$message] = "Welcome back with cookie";
             }
         }
+        
+        else{
+            if($this->nameAndPasswordProvided() && $this->successfulLoginAttempt()){
+                $this->isLoggedIn = true;
+                $_SESSION[self::$message] = $this->loginMessageView->welcome();
 
+                if($this->loginView->keepLoggedIn()){
+                    $this->userStorage->setCookiePassword($this->username, $this->loginView->getCookieName());
+                } else{
+                    $this->userStorage->setUserSession($this->user);    
+                }
 
+            }
+        }
        
         //bye bye not rendered if isLoggedIn... Not sure why
         if($this->isLoggedIn() && $this->loginView->logoutRequested()){
             $_SESSION[self::$message] = $this->loginMessageView->bye();
-            $this->userStorage->logOut();
+            $this->isLoggedIn = false;
+            
+            if($this->cookie){
+                $this->userStorage->clearCookie($this->loginView->getCookieName(), $this->cookie);
+            }else{
+                $this->userStorage->unsetUserSession();    
+            }
         }           
         
 
-        $isLoggedIn = $this->userStorage->isLoggedIn();
-        $page = $this->loginView->render($isLoggedIn, $this->loginMessage());
-        return $layout->render($page, $isLoggedIn); 
+        //something seems to be wrong with isLoggedIn function... defining variable instead
+        $page = $this->loginView->render($this->isLoggedIn, $this->loginMessage());
+        return $layout->render($page, $this->isLoggedIn); 
     }
 
     public function renderLogoutPageInLayout(Layoutview $layout){
@@ -104,7 +126,7 @@ class LoginController
     }
 
     private function passwordOrNameIncorrect(){
-        return $this->loginView->loginAttempted() && $this->userStorage->userSet() && $this->userStorage->passwordOrNameIncorrect();
+        return $this->loginView->loginAttempted() && $this->nameAndPasswordProvided() && $this->db->nameOrPasswordIncorrect($this->username, $this->password);
     }
 
     private function nameAndPasswordProvided(){
@@ -112,20 +134,16 @@ class LoginController
     }
 
     private function successfulLoginAttempt(){
-        return !$this->userStorage->isLoggedIn() && $this->userStorage->credentialsCorrect();
+        if($this->user){
+            return ($this->db->userExists($this->username) && $this->db->comparePassword($this->username, $this->password));
+        }
     }
 
     public function isLoggedIn(){
-        return $this->userStorage->isLoggedIn();
+        if($this->cookie)
+            return $this->db->cookieExists($this->cookie);
+        
+        
+        return $this->userStorage->userSessionSet();
     }
-
 }
-
-
-    /*private function registerUser(){   
-        if($this->username && $this->password){
-            $this->db->registerUser($this->username, $this->password);
-        } 
-    }*/
-
-    //$this->registerView = new RegisterUserView();

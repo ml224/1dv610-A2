@@ -12,8 +12,6 @@ class LoginView {
 	private static $password = 'LoginView::Password';
 	private static $loginMessage = 'LoginView::Message';
 	
-	private $usernameCorrect;
-	private $passwordCorrect;
 	private $isLoggedIn;
 
 	function __construct(){
@@ -68,21 +66,35 @@ class LoginView {
 	}
 
 	private function setSessionVariables(){
+		//clear all session variables..
+		//$_SESSION[self::$cookieName] = self::$cookiePassword;
+		//session_unset();
+		unset($_SESSION[self::$name]);
+		unset($_SESSION[self::$password]);
 		unset($_SESSION[self::$logout]);
+		unset($_SESSION[self::$keep]);
+
+		//always set cookie name 
+		$_SESSION[self::$cookieName] = self::$cookiePassword;
+
 
 		if($this->loginAttempted()){
 			$_SESSION[self::$name] = $_POST[self::$name];
 			$_SESSION[self::$password] = $_POST[self::$password];
 		} 
 		if($this->logoutRequested()){
-			//unset username and password first when logout requested
 			$_SESSION[self::$logout] = $_POST[self::$logout];
-			unset($_SESSION[self::$name]);
-			unset($_SESSION[self::$password]);
 		}
+		if($this->keepRequested())
+			$_SESSION[self::$keep] = $_POST[self::$keep];
 	}
 
-	//public functions used in controller
+
+	
+	private function keepRequested(){
+		return isset($_POST[self::$keep]);
+	}
+
 	public function loginAttempted(){
 		return isset($_POST[self::$name]);
 	}
@@ -91,6 +103,9 @@ class LoginView {
 		return isset($_POST[self::$logout]);
 	}
 
+
+
+	//session variables
 	
 	public function getRequestUsername() {
 		if(isset($_SESSION[self::$name])){
@@ -103,13 +118,32 @@ class LoginView {
 			return $_SESSION[self::$password];
 		}
 	}
+
+	//cookie stuff
+	private function cookieSet(){
+		return isset($_COOKIE[self::$cookiePassword]);
+	}
+	public function getCookiePassword(){
+		if($this->cookieSet()){
+			return $_COOKIE[self::$cookiePassword];
+		}
+	}
+
+	public function clearCookie(){
+		if($this->cookieSet()){
+			unset($_COOKIE[self::$cookiePassword]);
+			unset($_SESSION[self::$keep]);
+		}
+	}
+
+	public function getCookieName(){
+		if(isset($_SESSION[self::$cookieName])){
+			//same as cookie password
+			return $_SESSION[self::$cookieName];
+		}
+	}
+
+	public function keepLoggedIn(){
+		return isset($_SESSION[self::$keep]);
+	}
 }
-
-
-//so that loginattempted returns false when reloading page
-
-		/*if(!isset($_SESSION[self::$name])){
-			//header("Location: " . $_SERVER['REQUEST_URI']);
-			   //exit();
-			   
-		}*/

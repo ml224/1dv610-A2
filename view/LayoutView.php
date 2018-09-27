@@ -27,7 +27,7 @@ class LayoutView {
         </head>
         <body>
           <h1>Assignment 2</h1>
-          ' . $this->loginMessage($isLoggedIn) . '
+          '.$this->loginMessage($isLoggedIn).'
           
           <div class="container">
           

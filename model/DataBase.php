@@ -30,7 +30,27 @@ class DataBase{
         } catch(Exception $e){
             return false;
         }
-        
+    }
+
+    public function storeCookie($name, $cookie){
+        if(!$this->getUser($name))
+            throw new Exception("User does not exist");
+
+        $this->mysqli->query("INSERT INTO users WHERE username = '$name' (cookie) VALUES ('$cookie')");
+    }
+
+    public function cookieExists($cookie){
+        $dbCookie = $this->mysqli->query("SELECT cookie FROM users WHERE cookie = '$cookie'");
+        if($dbCookie){
+            return true;
+        } else{
+            return false;
+        }
+    }
+
+    public function clearCookie($cookie){
+        //clear cookie from db
+        $this->mysqli->query("INSERT INTO users WHERE cookie = '$cookie' (cookie) VALUES (NULL)");
     }
 
     public function comparePassword($name, $psw){
@@ -49,11 +69,19 @@ class DataBase{
     }
 
     private function correctPassword($name){
-        $dbObject = $this->mysqli->query("SELECT * FROM users WHERE username = '$name'");
+        $dbObject = $this->getUser($name);
         if($dbObject->num_rows > 0){
             return $dbObject->fetch_array()["password"];
         } else {
             throw new Exception("username does not exist");
         }
+    }
+
+    private function getUser($name){
+        return $this->mysqli->query("SELECT * FROM users WHERE username = '$name'");
+    }
+
+    public function nameOrPasswordIncorrect($name, $password){
+        return !$this->userExists($name) || !$this->comparePassword($name, $password); 
     }
 }
