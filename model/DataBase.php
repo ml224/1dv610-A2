@@ -2,6 +2,7 @@
 
 class DataBase{
     private $mysqli;
+    private $production = ["localhost", "id7143547_root", "MiniMolo4685", "id7143547_users"];
 
 
     public function DataBase(){
@@ -18,7 +19,11 @@ class DataBase{
 
     public function registerUser($name, $password){
         $this->verifyNewCredentials($name, $password);
-
+        
+        if($this->userExists($name)){
+            throw new Exception("Username already exists");
+        }
+        
         $hashed = password_hash($password, PASSWORD_DEFAULT);
         $this->mysqli->query("INSERT IGNORE INTO users (username, password) VALUES('$name', '$hashed')");
     }

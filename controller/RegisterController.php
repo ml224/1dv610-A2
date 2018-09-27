@@ -1,6 +1,7 @@
 <?php
 
 require_once('view/RegisterView.php');
+require_once('view/MessageView.php');
 require_once('model/DataBase.php');
 
 class RegisterController{
@@ -9,8 +10,11 @@ class RegisterController{
     private $newUserPassword;
     private $failOrSuccessMessage;
     private $db;
+    private $messages = array();
+    private $messageView;
 
     function __construct(DataBase $db){
+        $this->messageView = new MessageView();
         $this->registerView = new RegisterView();
         $this->db = $db;
         if($this->registerView->registerNewUserRequested()){
@@ -22,11 +26,14 @@ class RegisterController{
     public function renderRegisterPageWithLayout(LayoutView $layout){
         if($this->registerView->registerNewUserRequested()){
               if($this->invalidInput()){
-                $this->failOrSuccessMessage = $this->getMessage();
+                $this->failOrSuccessMessage = $this->messagesToHtml();
               }
               else {
-                $this->db->registerUser($this->newUserName, $this->newUserPassword);
-                $this->failOrSuccessMessage = "Success!";
+                  try{
+                    $this->db->registerUser($this->newUserName, $this->newUserPassword);
+                  } catch(Exception $e){
+                    $this->failOrSuccessMessage = $this->messageView->userExists();
+                  }
               }
         }
             
@@ -37,15 +44,29 @@ class RegisterController{
         return $this->passwordsDontMatch() || $this->usernameTooShort() || $this->passwordTooShort();
     }
 
-    private function getMessage(){
+    private function populateMessageArray(){
         if($this->passwordsDontMatch())
-            return "Passwords do not match.";
+            array_push($this->messages, $this->messageView->passwordsDontMatch());
         
         if($this->usernameTooShort())
-            return "Username has too few characters, at least 3 characters.";                    
-            
+            array_push($this->messages, $this->messageView->usernameTooShort());
+
         if($this->passwordTooShort())
-            return "Password has too few characters, at least 6 characters.";                    
+            array_push($this->messages, $this->messageView->passwordTooShort());
+        
+        if($this->invalidCharactersInUsername())
+            array_push($this->messages, $this->messageView->invalidCharactersInUsername());
+    }
+
+    private function messagesToHtml(){
+        $this->populateMessageArray();
+
+        $str= "";
+        foreach($this->messages as $message){
+            $str .= $message . '<br>';
+        }
+
+        return $str;
     }
 
     private function passwordsDontMatch(){
@@ -57,5 +78,9 @@ class RegisterController{
     }
     private function passwordTooShort(){
         return strlen($this->newUserPassword) < 6;
+    }
+
+    private function invalidCharactersInUsername(){
+        return !ctype_alnum($this->newUserName);
     }
 }
