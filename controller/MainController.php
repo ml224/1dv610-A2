@@ -28,8 +28,6 @@ class MainController{
     public function getPage(){
         if($this->layoutView->registerViewRequested())
             return $this->registerController->renderRegisterPageWithLayout($this->layoutView);
-        if($this->layoutView->logoutViewRequested())
-            return $this->loginController->renderLogoutPageInLayout($this->layoutView); 
         else
             return $this->loginController->renderLoginPageInLayout($this->layoutView);  
     }

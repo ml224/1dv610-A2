@@ -20,7 +20,7 @@ class RegisterView{
 	private function registerForm(){
 		return '
 		
-		<form method="post" > 
+		<form method="post"> 
 				<fieldset>
 					<legend>Sign up - enter Username and password</legend>
 					<p id="'. self::$message .'">'. $_SESSION[self::$message] .'</p>

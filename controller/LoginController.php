@@ -54,6 +54,10 @@ class LoginController
         if($this->isLoggedIn && $this->loginView->logoutRequested()){
             $this->handleLogout();    
         }     
+
+        if($layout->successfulRegistration()){
+            $_SESSION[self::$message] = "Registered new user.";
+        }
         
         $page = $this->loginView->render($this->isLoggedIn, $this->loginMessage());
         return $layout->render($page, $this->isLoggedIn); 

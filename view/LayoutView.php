@@ -8,10 +8,14 @@ class LayoutView {
 
   private static $register = "register";
   private static $logout = "logout";
+  private static $success = "success";
 
   private static $logoutUrl = "?logout=true";
   private static $registerUrl = "?register=true";
   private static $backToLoginUrl = "/";
+  
+  private $baseUrl = "http://localhost:8000";
+  private $successUrl =  "http://localhost:8000/?success=true";
 
 
   function __construct(){
@@ -49,12 +53,17 @@ class LayoutView {
     return isset($_GET);
   }
 
-  public function logoutViewRequested(){
-    return isset($_GET[self::$logout]);
+  public function successfulRegistration(){
+    return isset($_GET[self::$success]);
   }
 
+  public function getSuccessUrl(){
+    return $this->successUrl;
+  }
+
+
   private function registerLink($isLoggedIn){
-    if($this->registerViewRequested() && !$isLoggedIn || $this->logoutViewRequested())
+    if($this->registerViewRequested() && !$isLoggedIn)
       return '<a href="'. self::$backToLoginUrl .'">Back to login</a>';
     if($this->loginViewRequested() && !$isLoggedIn)
       return '<a href="'. self::$registerUrl .'">Register a new user</a>';

@@ -31,6 +31,9 @@ class RegisterController{
               else {
                   try{
                     $this->db->registerUser($this->newUserName, $this->newUserPassword);
+                    $url = $layout->getSuccessUrl();
+                    header('Location: ' . $url);
+
                   } catch(Exception $e){
                     $this->failOrSuccessMessage = $this->messageView->userExists();
                   }
@@ -41,7 +44,7 @@ class RegisterController{
     }
 
     private function invalidInput(){
-        return $this->passwordsDontMatch() || $this->usernameTooShort() || $this->passwordTooShort();
+        return $this->passwordsDontMatch() || $this->usernameTooShort() || $this->passwordTooShort() || $this->invalidCharactersInUsername();
     }
 
     private function populateMessageArray(){
