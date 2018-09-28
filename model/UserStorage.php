@@ -26,14 +26,14 @@ class UserStorage {
 	public function setCookiePassword($username, $cookieName){
 		$random = $this->randomStringForCookie();
 
-		$this->db->storeCookie($username, $random);
 		//setting cookie that expires in 15 minutes
 		setcookie($cookieName, $random, time() + (60 * 15), '/');
+		$this->db->storeCookie($username, $random);
 	}
 
 	public function clearCookie($cookieName, $cookie){
 		$this->db->clearCookie($cookie);
-		setcookie($cookieName, '', time() + (60 * 15), '/');
+		setcookie($cookieName, false, time() + (60 * 15), '/');
 	}
 
 	private function randomStringForCookie(){

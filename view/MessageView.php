@@ -42,4 +42,8 @@ class MessageView{
         return "Username contains invalid characters.";
     }
 
+    public function wrongInformationInCookie(){
+        return "Wrong information in cookies";
+    }
+
 }

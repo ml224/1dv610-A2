@@ -59,29 +59,25 @@ class LoginController
             $this->handleLoggedInUsers();
         } 
         else{
-            if($this->nameAndPasswordProvided() && $this->successfulLoginAttempt()){
+            if(!$this->isLoggedIn() && $this->nameAndPasswordProvided() && $this->successfulLoginAttempt()){
                 $this->handleSuccessfulLogin();
             }
         }
        
-        if($this->isLoggedIn() && $this->loginView->logoutRequested()){
+        if($this->isLoggedIn && $this->loginView->logoutRequested()){
             $this->handleLogout();    
-        }           
+        }     
+        
+        if($this->loginView->loginAttempted() && $this->wrongInformationInCookie()){
+            $_SESSION[self::$message] = $this->messageView->wrongInformationInCookie();
+            $this->isLoggedIn = false;
+        }
         
         $page = $this->loginView->render($this->isLoggedIn, $this->loginMessage());
         return $layout->render($page, $this->isLoggedIn); 
     }
 
-    public function renderLogoutPageInLayout(Layoutview $layout){
-        $page = $this->loginView->renderLogoutPage();
-        return $layout->render($page, false); 
-
-    }
-
     private function loginMessage(){
-        /*if($this->loginMessage)
-            return $this->loginMessage;
-        */
         if(isset($_SESSION[self::$message]))
             return $_SESSION[self::$message];
         if($this->usernameMissing())
@@ -111,15 +107,13 @@ class LoginController
     }
 
     private function successfulLoginAttempt(){
-        if($this->user){
-            return ($this->db->userExists($this->username) && $this->db->comparePassword($this->username, $this->password));
-        }
+        return ($this->db->userExists($this->username) && $this->db->passwordIsCorrect($this->username, $this->password));
     }
 
     private function handleLoggedInUsers(){
         $this->isLoggedIn = true;
 
-            if($this->cookie && !$this->userStorage->userSessionSet()){
+            if(!$this->userStorage->userSessionSet()){
                 $_SESSION[self::$message] = "Welcome back with cookie";
             }
     }
@@ -140,15 +134,29 @@ class LoginController
         if($this->cookie){
             $this->userStorage->clearCookie($this->loginView->getCookieName(), $this->cookie);
         }
-        if($this->userStorage->userSessionSet())
+        if($this->userStorage->userSessionSet()){
             $this->userStorage->unsetUserSession();
+        }
+    }
+
+    private function wrongInformationInCookie(){
+        if($this->cookie)
+            return !$this->db->cookieExists($this->cookie);
+        
     }
 
     public function isLoggedIn(){
-        if($this->cookie)
-            return $this->db->cookieExists($this->cookie);
+        if($this->isLoggedIn){
+            return true;
+        }
+        else{
+            if($this->cookie){
+                return $this->db->cookieExists($this->cookie);
+    
+            }
         
+            return $this->userStorage->userSessionSet();
+        }
         
-        return $this->userStorage->userSessionSet();
     }
 }
