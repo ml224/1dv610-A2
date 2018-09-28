@@ -57,6 +57,7 @@ class LoginController
 
         if($layout->successfulRegistration()){
             $_SESSION[self::$message] = "Registered new user.";
+            $this->loginView->setUsername($layout->getNewUsername());
         }
         
         $page = $this->loginView->render($this->isLoggedIn, $this->loginMessage());

@@ -32,7 +32,7 @@ class RegisterController{
                   try{
                     $this->db->registerUser($this->newUserName, $this->newUserPassword);
                     $url = $layout->getSuccessUrl();
-                    header('Location: ' . $url);
+                    header('Location: ' . $url . $this->newUserName); 
 
                   } catch(Exception $e){
                     $this->failOrSuccessMessage = $this->messageView->userExists();

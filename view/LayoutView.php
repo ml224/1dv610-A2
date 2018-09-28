@@ -8,14 +8,14 @@ class LayoutView {
 
   private static $register = "register";
   private static $logout = "logout";
-  private static $success = "success";
+  private static $success = "new_user";
 
   private static $logoutUrl = "?logout=true";
   private static $registerUrl = "?register=true";
   private static $backToLoginUrl = "/";
   
   private $baseUrl = "http://localhost:8000";
-  private $successUrl =  "http://localhost:8000/?success=true";
+  private $successUrl =  "http://localhost:8000/?new_user=";
 
 
   function __construct(){
@@ -55,6 +55,10 @@ class LayoutView {
 
   public function successfulRegistration(){
     return isset($_GET[self::$success]);
+  }
+
+  public function getNewUsername(){
+    return $_GET[self::$success];
   }
 
   public function getSuccessUrl(){

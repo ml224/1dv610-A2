@@ -45,7 +45,7 @@ class LoginView {
 	private function generateLoginFormHTML($message) {
 		$username = $this->getRequestUsername();
 		return '
-		<form method="post" > 
+		<form method="post" action="/"> 
 				<fieldset>
 					<legend>Login - enter Username and password</legend>
 					<p id="' . self::$loginMessage . '">' . $message . '</p>
@@ -90,6 +90,9 @@ class LoginView {
 	}
 
 
+	public function setUsername($name){
+		$_SESSION[self::$name] = $name;
+	}
 	
 	private function keepRequested(){
 		return isset($_POST[self::$keep]);
