@@ -8,12 +8,22 @@ class UserStorage {
 		$this->db = $db;
 	}
 
-	public function userSessionSet(){
+	public function userSessionSet(){ 
 		return isset($_SESSION[self::$userSession]);
 	}
 
-	public function setUserSession(User $user){
-		$_SESSION[self::$userSession] = $user;
+	public function userSessionNotAltered(){
+		return $_SESSION[self::$userSession] === $_COOKIE[self::$userSession];
+	}
+
+	public function setUserSession($username){
+		$random = $this->randomStringForCookie();
+		$_SESSION[self::$userSession] = $username . $random;
+		setcookie(self::$userSession, $username . $random, 0, '/');
+	}
+
+	public function userSessionCorrect($session){
+		return $_SESSION[self::$userSession] === $session; 
 	}
 
 	public function unsetUserSession(){
