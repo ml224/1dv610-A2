@@ -31,7 +31,6 @@ class MessageView{
 
     public function passwordTooShort(){
         return "Password has too few characters, at least 6 characters.";                    
-
     }
 
     public function userExists(){
@@ -44,6 +43,14 @@ class MessageView{
 
     public function wrongInformationInCookie(){
         return "Wrong information in cookies";
+    }
+    
+    public function welcomeBackWithCookie(){
+        return "Welcome back with cookie";
+    }
+    
+    public function newUserRegistered(){
+        return "Registered new user.";
     }
 
 }

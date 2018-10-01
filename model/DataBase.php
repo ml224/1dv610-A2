@@ -2,7 +2,6 @@
 
 class DataBase{
     private $mysqli;
-    private $production = ["localhost", "id7143547_root", "MiniMolo4685", "id7143547_users"];
 
 
     public function DataBase(){

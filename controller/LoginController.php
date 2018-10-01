@@ -26,7 +26,6 @@ class LoginController
     function __construct(DataBase $db){
         $this->db = $db;
         $this->loginView = new LoginView();
-        $this->validator = new ValidateInput();
         $this->messageView = new MessageView();
         $this->userStorage = new UserStorage($db);
         
@@ -40,7 +39,7 @@ class LoginController
         return $this->isLoggedIn;
     }
 
-    public function getPageContent($layout){
+    public function getPageContent(LayoutView $layout){
         if($this->isLoggedIn())
             $this->handleLoggedInUsers();
         
@@ -124,25 +123,17 @@ class LoginController
         if($this->loginMessage)
             return $this->loginMessage;
 
-        if($this->usernameMissing())
-            return $this->messageView->usernameMissing();
+        if($this->loginView->loginAttempted()){
+            $inputValidator = new ValidateInput($this->username, $this->password);
+
+            if($inputValidator->usernameMissing())
+                return $this->messageView->usernameMissing();
             
-        if($this->passwordMissing())
-            return $this->messageView->passwordMissing();
+            if($inputValidator->passwordMissing())
+                return $this->messageView->passwordMissing();
                 
-        if($this->passwordOrNameIncorrect())
-            return $this->messageView->wrongNameOrPassword();
-    }
-
-    private function usernameMissing(){
-        return $this->loginView->loginAttempted() && $this->validator->usernameMissing($this->username); 
-    }
-
-    private function passwordMissing(){
-        return $this->loginView->loginAttempted() && $this->validator->passwordMissing($this->password); 
-    }
-
-    private function passwordOrNameIncorrect(){
-        return $this->loginView->loginAttempted() && $this->nameAndPasswordProvided() && $this->db->nameOrPasswordIncorrect($this->username, $this->password);
+            if($this->db->nameOrPasswordIncorrect($this->username, $this->password))
+                return $this->messageView->wrongNameOrPassword();
+        }
     }
 }

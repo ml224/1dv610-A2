@@ -1,13 +1,20 @@
 <?php
 
 class ValidateInput{
+  private $password;
+  private $username;
 
-    public function usernameMissing($name){
-		return strlen($name) === 0;
-    }
+  function __construct($name, $password){
+    $this->username = $name;
+    $this->password = $password;
+  }
+  
+  public function usernameMissing(){
+		return strlen($this->username) === 0;
+  }
     
-    public function passwordMissing($psw){
-		return strlen($psw) === 0;
-    }
+  public function passwordMissing(){
+		return strlen($this->password) === 0;
+  }
 
 }

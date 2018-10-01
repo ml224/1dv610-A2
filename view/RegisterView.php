@@ -52,6 +52,10 @@ class RegisterView{
 		if(isset($_SESSION[self::$passwordRepeat]))
 			return $_SESSION[self::$passwordRepeat];		
 	}
+
+	public function setUsername($name){
+		$_SESSION[self::$username] = $name;
+	}
     
 	private function setSessionVariables(){
 		if($this->registerNewUserRequested()){
@@ -63,5 +67,13 @@ class RegisterView{
 
     public function registerNewUserRequested(){
 		return isset($_POST[self::$username]);
+	}
+
+	public function listMessagesHtml($messages){
+		$str = "";
+		foreach($messages as $message){
+            $str .= $message . '<br>';
+        }
+        return $str;
 	}
 }

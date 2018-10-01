@@ -8,13 +8,11 @@ class LayoutView {
 
   private static $register = "register";
   private static $logout = "logout";
-  private static $success = "new_user";
+  private static $newUser = "new_user";
 
-  private static $logoutUrl = "?logout=true";
-  private static $registerUrl = "?register=true";
-  private static $backToLoginUrl = "/";
+  private static $relativeLogoutUrl = "?logout=true";
+  private static $relativeRegisterUrl = "?register=true";
   
-  private $baseUrl = "http://localhost:8000";
   private $successUrl =  "http://localhost:8000/?new_user=";
 
 
@@ -35,7 +33,7 @@ class LayoutView {
           
           <div class="container">
           
-		          ' . $this->registerLink($isLoggedIn) .'
+		          ' . $this->getLink($isLoggedIn) .'
               ' . $page . '
               
               ' . $this->dateView->show() . '
@@ -45,40 +43,34 @@ class LayoutView {
     ';
   }
 
+  private function loginMessage($isLoggedIn) {
+    if ($isLoggedIn)
+      return '<h2>Logged in</h2>';
+    
+    return '<h2>Not logged in</h2>';
+  }
+
+  private function getLink($isLoggedIn){
+    if($this->registerViewRequested() && !$isLoggedIn)
+      return '<a href="/">Back to login</a>';
+
+    if(!$isLoggedIn)
+      return '<a href="'. self::$relativeRegisterUrl .'">Register a new user</a>';
+  } 
+
   public function registerViewRequested(){
     return isset($_GET[self::$register]);
   }
 
-  public function loginViewRequested(){
-    return isset($_GET);
-  }
-
   public function userRegistered(){
-    return isset($_GET[self::$success]);
+    return isset($_GET[self::$newUser]);
   }
 
   public function getNewUsername(){
-    return $_GET[self::$success];
+    return $_GET[self::$newUser];
   }
 
-  public function getSuccessUrl(){
-    return $this->successUrl;
-  }
-
-
-  private function registerLink($isLoggedIn){
-    if($this->registerViewRequested() && !$isLoggedIn)
-      return '<a href="'. self::$backToLoginUrl .'">Back to login</a>';
-    if($this->loginViewRequested() && !$isLoggedIn)
-      return '<a href="'. self::$registerUrl .'">Register a new user</a>';
-  } 
-  
-  private function loginMessage($isLoggedIn) {
-    if ($isLoggedIn) {
-      return '<h2>Logged in</h2>';
-    }
-    else {
-      return '<h2>Not logged in</h2>';
-    }
+  public function redirectRegisteredUser($username){
+    header('Location: ' . $this->successUrl . $username); 
   }
 }
