@@ -53,7 +53,7 @@ class LayoutView {
     return isset($_GET);
   }
 
-  public function successfulRegistration(){
+  public function userRegistered(){
     return isset($_GET[self::$success]);
   }
 

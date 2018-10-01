@@ -21,14 +21,13 @@ class MainController{
         $this->messageView = new MessageView;
     }
 
-    public function renderPage(){
-        return $this->getPage();
-    }
-
-    public function getPage(){
+    public function renderLoginComponent(){
         if($this->layoutView->registerViewRequested())
             return $this->registerController->renderRegisterPageWithLayout($this->layoutView);
-        else
-            return $this->loginController->renderLoginPageInLayout($this->layoutView);  
+        else{
+            $page = $this->loginController->getPageContent($this->layoutView);
+            $isLoggedIn = $this->loginController->userLoggedIn();
+            $this->layoutView->render($page, $isLoggedIn);
+        }
     }
 }
