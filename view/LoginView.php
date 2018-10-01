@@ -15,7 +15,42 @@ class LoginView {
 	private $isLoggedIn;
 
 	function __construct(){
+		$this->unsetPreviousSessionVariables();
 		$this->setSessionVariables();
+	}
+
+	private function unsetPreviousSessionVariables(){
+		unset($_SESSION[self::$name]);
+		unset($_SESSION[self::$password]);
+		unset($_SESSION[self::$logout]);
+		unset($_SESSION[self::$keep]);
+	}
+
+	private function setSessionVariables(){
+		//TODO - set cookie in this class and dont share cookie name 
+		$_SESSION[self::$cookieName] = self::$cookiePassword;
+
+		if($this->loginAttempted()){
+			$_SESSION[self::$name] = $_POST[self::$name];
+			$_SESSION[self::$password] = $_POST[self::$password];
+		} 
+		if($this->logoutRequested()){
+			$_SESSION[self::$logout] = $_POST[self::$logout];
+		}
+		if($this->keepRequested())
+			$_SESSION[self::$keep] = $_POST[self::$keep];
+	}
+
+	public function loginAttempted(){
+		return isset($_POST[self::$name]);
+	}
+	
+	public function logoutRequested(){
+		return isset($_POST[self::$logout]);
+	}
+
+	private function keepRequested(){
+		return isset($_POST[self::$keep]);
 	}
 
 
@@ -24,13 +59,6 @@ class LoginView {
 			return $this->generateLogoutButtonHTML($message);
 		else
 			return $this->generateLoginFormHTML($message);
-	}
-
-	public function renderLogoutPage(){
-		$message = "Bye bye!";
-		return '
-				<p id="' . self::$loginMessage . '">' . $message .'</p>';
-		
 	}
 
 	private function generateLogoutButtonHTML($message) {
@@ -43,7 +71,6 @@ class LoginView {
 	}
 
 	private function generateLoginFormHTML($message) {
-		$username = $this->getRequestUsername();
 		return '
 		<form method="post" action="/"> 
 				<fieldset>
@@ -51,7 +78,7 @@ class LoginView {
 					<p id="' . self::$loginMessage . '">' . $message . '</p>
 					
 					<label for="' . self::$name . '">Username :</label>
-					<input type="text" id="' . self::$name . '" name="' . self::$name . '" value="'. $username .'" />
+					<input type="text" id="' . self::$name . '" name="' . self::$name . '" value="'. $this->getInputName() .'" />
 
 					<label for="' . self::$password . '">Password :</label>
 					<input type="password" id="' . self::$password . '" name="' . self::$password . '" />
@@ -65,61 +92,25 @@ class LoginView {
 		';
 	}
 
-	private function setSessionVariables(){
-		//clear all session variables..
-		//$_SESSION[self::$cookieName] = self::$cookiePassword;
-		//session_unset();
-		unset($_SESSION[self::$name]);
-		unset($_SESSION[self::$password]);
-		unset($_SESSION[self::$logout]);
-		unset($_SESSION[self::$keep]);
-
-		//always set cookie name 
-		$_SESSION[self::$cookieName] = self::$cookiePassword;
-
-
-		if($this->loginAttempted()){
-			$_SESSION[self::$name] = $_POST[self::$name];
-			$_SESSION[self::$password] = $_POST[self::$password];
-		} 
-		if($this->logoutRequested()){
-			$_SESSION[self::$logout] = $_POST[self::$logout];
-		}
-		if($this->keepRequested())
-			$_SESSION[self::$keep] = $_POST[self::$keep];
-	}
-
-
-	public function setUsername($name){
-		$_SESSION[self::$name] = $name;
-	}
-	
-	private function keepRequested(){
-		return isset($_POST[self::$keep]);
-	}
-
-	public function loginAttempted(){
-		return isset($_POST[self::$name]);
-	}
-
-	public function logoutRequested(){
-		return isset($_POST[self::$logout]);
-	}
-
-
-
-	//session variables
-	
-	public function getRequestUsername() {
+	public function getInputName() {
 		if(isset($_SESSION[self::$name])){
 			return $_SESSION[self::$name];
 		}
 	}
-	
-	public function getRequestPassword() {
+
+	public function getInputPassword() {
 		if(isset($_SESSION[self::$password])){
 			return $_SESSION[self::$password];
 		}
+	}
+
+	public function setInputName($name){
+		$_SESSION[self::$name] = $name;
+	}
+
+	
+	public function keepLoggedIn(){
+		return isset($_SESSION[self::$keep]);
 	}
 
 	//cookie stuff
@@ -146,7 +137,4 @@ class LoginView {
 		}
 	}
 
-	public function keepLoggedIn(){
-		return isset($_SESSION[self::$keep]);
-	}
 }

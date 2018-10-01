@@ -32,6 +32,25 @@ class DataBase{
         $stmt->close();
     }
 
+    public function userExists($name){
+        if($this->getUserArray($name))
+            return true;
+        
+        return false;
+    }
+
+    private function getUserArray($name){
+        $stmt = $this->mysqli->prepare("SELECT * FROM users WHERE username = ?");
+        $stmt->bind_param("s", $name);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $row = $result->fetch_assoc();
+        $stmt->close();
+
+        return $row;
+    }
+
+
     public function cookieExists($cookie){
         $stmt = $this->mysqli->prepare("SELECT cookie FROM users WHERE cookie = ?");
         $stmt->bind_param("s", $cookie);
@@ -80,25 +99,7 @@ class DataBase{
             throw new Exception("username does not exist");
         }
     }
-
-    public function userExists($name){
-        if($this->getUserArray($name))
-            return true;
-        
-        return false;
-    }
-
-    private function getUserArray($name){
-        $stmt = $this->mysqli->prepare("SELECT * FROM users WHERE username = ?");
-        $stmt->bind_param("s", $name);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $row = $result->fetch_assoc();
-        $stmt->close();
-
-        return $row;
-    }
-
+    
     public function nameOrPasswordIncorrect($name, $password){
         return !$this->userExists($name) || !$this->passwordIsCorrect($name, $password); 
     }

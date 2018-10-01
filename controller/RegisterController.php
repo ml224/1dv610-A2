@@ -5,12 +5,15 @@ require_once('view/MessageView.php');
 require_once('model/DataBase.php');
 
 class RegisterController{
-    private $registerView;
-    private $newUserName;
-    private $newUserPassword;
-    private $failOrSuccessMessage;
     private $db;
+    private $inputValidator;
     private $messageView;
+    private $registerView;
+
+    private $username;
+    private $password;
+    private $repeatPassword;
+    private $failOrSuccessMessage;
 
     function __construct(DataBase $db){
         $this->messageView = new MessageView();
@@ -18,8 +21,11 @@ class RegisterController{
         $this->db = $db;
 
         if($this->registerView->registerNewUserRequested()){
-            $this->newUserName = $this->registerView->getUsername();
-            $this->newUserPassword = $this->registerView->getPassword();
+            $this->username = $this->registerView->getUsername();
+            $this->password = $this->registerView->getPassword();
+            $this->repeatPassword = $this->registerView->getRepeatPassword();
+
+            $this->inputValidator = new ValidateInput($this->username, $this->password);
         }
     }
 
@@ -29,16 +35,16 @@ class RegisterController{
             if($this->invalidInput()){
                 $html = $this->registerView->listMessagesHtml($this->getMessageArray());
                 $this->failOrSuccessMessage = $html;
-                
-                if($this->invalidCharactersInUsername()){
-                    $this->registerView->setUsername(strip_tags($this->newUserName));
+
+                if($this->inputValidator->invalidCharactersInUsername()){
+                    $this->registerView->setUsername(strip_tags($this->username));
                 }
             }
 
             else {
                 try{
-                    $this->db->registerUser($this->newUserName, $this->newUserPassword);
-                    $layout->redirectRegisteredUser($this->newUserName);
+                    $this->db->registerUser($this->username, $this->password);
+                    $layout->redirectRegisteredUser($this->username);
                 } catch(Exception $e){
                     $this->failOrSuccessMessage = $this->messageView->userExists();
                 }
@@ -47,39 +53,28 @@ class RegisterController{
             
         return $this->registerView->render($this->failOrSuccessMessage);
     }
-
-    //validator?
-    private function passwordsDontMatch(){
-        return !($this->registerView->getPassword() === $this->registerView->getRepeatPassword());
-    }
-
-    private function usernameTooShort(){
-        return strlen($this->newUserName) < 3;
-    }
-    private function passwordTooShort(){
-        return strlen($this->newUserPassword) < 6;
-    }
-
-    private function invalidCharactersInUsername(){
-        return !ctype_alnum($this->newUserName);
-    }
   
     private function invalidInput(){
-        return $this->passwordsDontMatch() || $this->usernameTooShort() || $this->passwordTooShort() || $this->invalidCharactersInUsername();
+        $passwordsDontMatch = $this->inputValidator->passwordsDontMatch($this->repeatPassword);
+        $usernameTooShort = $this->inputValidator->usernameTooShort();
+        $passwordTooShort = $this->inputValidator->passwordTooShort();
+        $invalidCharactersInUsername = $this->inputValidator->invalidCharactersInUsername();
+
+        return $passwordsDontMatch || $usernameTooShort || $passwordTooShort || $invalidCharactersInUsername;
     }
 
     private function getMessageArray(){
         $messages = array();
-        if($this->passwordsDontMatch())
+        if($this->inputValidator->passwordsDontMatch($this->repeatPassword))
             array_push($messages, $this->messageView->passwordsDontMatch());
         
-        if($this->usernameTooShort())
+        if($this->inputValidator->usernameTooShort())
             array_push($messages, $this->messageView->usernameTooShort());
 
-        if($this->passwordTooShort())
+        if($this->inputValidator->passwordTooShort())
             array_push($messages, $this->messageView->passwordTooShort());
         
-        if($this->invalidCharactersInUsername())
+        if($this->inputValidator->invalidCharactersInUsername())
             array_push($messages, $this->messageView->invalidCharactersInUsername());
         
         return $messages;

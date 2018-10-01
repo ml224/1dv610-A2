@@ -1,6 +1,5 @@
 <?php
 
-require_once("view/LayoutView.php");
 require_once("view/LoginView.php");
 require_once("view/MessageView.php");
 require_once("model/ValidateInput.php");
@@ -29,8 +28,8 @@ class LoginController
         $this->messageView = new MessageView();
         $this->userStorage = new UserStorage($db);
         
-        $this->username = $this->loginView->getRequestUsername();
-        $this->password = $this->loginView->getRequestPassword();
+        $this->username = $this->loginView->getInputName();
+        $this->password = $this->loginView->getInputPassword();
         
         $this->cookie = $this->loginView->getCookiePassword();
     }
@@ -115,7 +114,7 @@ class LoginController
 
         //setting username in loginview session, so that username is displayed in login field
         //after successful registration
-        $this->loginView->setUsername($layout->getNewUsername());
+        $this->loginView->setInputName($layout->getNewUsername());
     
     }
 
