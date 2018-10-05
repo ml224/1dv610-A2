@@ -9,16 +9,18 @@ class RegisterController{
     private $inputValidator;
     private $messageView;
     private $registerView;
+    private $nav;
 
     private $username;
     private $password;
     private $repeatPassword;
     private $failOrSuccessMessage;
 
-    function __construct(DataBase $db){
+    function __construct(DataBase $db, NavigationView $nav){
         $this->messageView = new MessageView();
         $this->registerView = new RegisterView();
         $this->db = $db;
+        $this->nav = $nav;
 
         if($this->registerView->registerNewUserRequested()){
             $this->username = $this->registerView->getUsername();
@@ -29,7 +31,7 @@ class RegisterController{
         }
     }
 
-    public function getPageContent(LayoutView $layout){
+    public function getPageContent(){
         if($this->registerView->registerNewUserRequested()){
 
             if($this->invalidInput()){
@@ -44,7 +46,7 @@ class RegisterController{
             else {
                 try{
                     $this->db->registerUser($this->username, $this->password);
-                    $layout->redirectRegisteredUser($this->username);
+                    $this->nav->redirectRegisteredUser($this->username);
                 } catch(Exception $e){
                     $this->failOrSuccessMessage = $this->messageView->userExists();
                 }

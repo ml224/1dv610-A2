@@ -1,9 +1,9 @@
 <?php
 require_once("LoginController.php");
 require_once("RegisterController.php");
-require_once("view/LayoutView.php");
 require_once("model/DataBase.php");
-require_once("view/MessageView.php");
+require_once("view/NavigationView.php");
+require_once("view/LayoutView.php");
 
 class MainController{
 
@@ -11,24 +11,27 @@ class MainController{
     private $registerController;
     private $layoutView;
     private $db;
+    private $navigationView;
 
     private $isLoggedIn;
     private $pageContent;
 
     function __construct(){
         $this->db = new DataBase();
-        $this->loginController = new LoginController($this->db);
-        $this->registerController = new RegisterController($this->db);
+        $this->navigationView = new NavigationView();
+
+        $this->loginController = new LoginController($this->db, $this->navigationView);
+        $this->registerController = new RegisterController($this->db, $this->navigationView);
         $this->layoutView = new LayoutView();
     }
 
     public function renderLoginComponent(){
-        if($this->layoutView->registerViewRequested()){
-            $this->pageContent = $this->registerController->getPageContent($this->layoutView);
+        if($this->navigationView->registerViewRequested()){
+            $this->pageContent = $this->registerController->getPageContent($this->navigationView);
             $this->isLoggedIn = false;
         }
         else{
-            $this->pageContent = $this->loginController->getPageContent($this->layoutView);
+            $this->pageContent = $this->loginController->getPageContent($this->navigationView);
             $this->isLoggedIn = $this->loginController->userLoggedIn();
         }
 

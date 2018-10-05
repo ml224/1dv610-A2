@@ -72,6 +72,7 @@ class LoginView {
 
 	private function generateLoginFormHTML($message) {
 		return '
+		<a href="?register=true">Register a new user</a>
 		<form method="post" action="/"> 
 				<fieldset>
 					<legend>Login - enter Username and password</legend>
@@ -113,7 +114,6 @@ class LoginView {
 		return isset($_SESSION[self::$keep]);
 	}
 
-	//cookie stuff
 	private function cookieSet(){
 		return isset($_COOKIE[self::$cookiePassword]);
 	}
@@ -136,5 +136,4 @@ class LoginView {
 			return $_SESSION[self::$cookieName];
 		}
 	}
-
 }

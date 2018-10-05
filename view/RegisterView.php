@@ -19,7 +19,7 @@ class RegisterView{
 
 	private function registerForm(){
 		return '
-		
+		<a href="/">Back to login</a>
 		<form method="post"> 
 				<fieldset>
 					<legend>Sign up - enter Username and password</legend>

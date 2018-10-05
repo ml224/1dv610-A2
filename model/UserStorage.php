@@ -1,5 +1,5 @@
 <?php
-
+//TODO change classname or break out session and cookie
 class UserStorage {
 	private static $userSession = "Model::UserSession";
 	private $db;
@@ -19,6 +19,8 @@ class UserStorage {
 	public function setUserSession($username){
 		$random = $this->randomStringForCookie();
 		$_SESSION[self::$userSession] = $username . $random;
+
+		//cookie will be compared with session to ensure session not altered
 		setcookie(self::$userSession, $username . $random, 0, '/');
 	}
 

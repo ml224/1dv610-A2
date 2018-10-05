@@ -2,6 +2,7 @@
 
 require_once("view/LoginView.php");
 require_once("view/MessageView.php");
+require_once("view/NavigationView.php");
 require_once("model/ValidateInput.php");
 require_once("model/UserStorage.php");
 
@@ -22,27 +23,30 @@ class LoginController
     private $loginMessage;
     private $isLoggedIn;
 
-    function __construct(DataBase $db){
+    function __construct(DataBase $db, NavigationView $nav){
         $this->db = $db;
+        $this->navigationView = $nav;
+
         $this->loginView = new LoginView();
         $this->messageView = new MessageView();
         $this->userStorage = new UserStorage($db);
         
         $this->username = $this->loginView->getInputName();
         $this->password = $this->loginView->getInputPassword();
-        
         $this->cookie = $this->loginView->getCookiePassword();
+        $this->isLoggedIn = $this->isLoggedIn();
     }
 
+    //used in maincontroller 
     public function userLoggedIn(){
         return $this->isLoggedIn;
     }
 
-    public function getPageContent(LayoutView $layout){
-        if($this->isLoggedIn())
+    public function getPageContent(){
+        if($this->isLoggedIn)
             $this->handleLoggedInUsers();
         
-        if(!$this->isLoggedIn() && $this->nameAndPasswordProvided() && $this->successfulLoginAttempt())
+        if(!$this->isLoggedIn && $this->nameAndPasswordProvided() && $this->successfulLoginAttempt())
             $this->handleSuccessfulLogin();
         
        
@@ -50,14 +54,14 @@ class LoginController
             $this->handleLogout();    
         }     
 
-        if($layout->userRegistered()){
-            $this->handleSuccessfulRegistration($layout);
+        if($this->navigationView->userRegistered()){
+            $this->handleSuccessfulRegistration();
         }
         
         return $this->loginView->render($this->isLoggedIn, $this->getLoginMessage());
     }
 
-    public function isLoggedIn(){
+    private function isLoggedIn(){
         if($this->cookie){
             if($this->db->cookieExists($this->cookie))
                 return true;
@@ -109,12 +113,12 @@ class LoginController
         }
     }
 
-    private function handleSuccessfulRegistration($layout){    
+    private function handleSuccessfulRegistration(){    
         $this->loginMessage = $this->messageView->newUserRegistered();
 
         //setting username in loginview session, so that username is displayed in login field
         //after successful registration
-        $this->loginView->setInputName($layout->getNewUsername());
+        $this->loginView->setInputName($this->navigationView->getNewUsername());
     
     }
 
@@ -135,4 +139,6 @@ class LoginController
                 return $this->messageView->wrongNameOrPassword();
         }
     }
+
+    
 }
