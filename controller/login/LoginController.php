@@ -1,10 +1,9 @@
 <?php
 
-require_once("view/LoginView.php");
-require_once("view/MessageView.php");
-require_once("view/NavigationView.php");
-require_once("model/ValidateInput.php");
-require_once("model/UserStorage.php");
+require_once("view/login/LoginView.php");
+require_once("view/login/MessageView.php");
+require_once("model/login/ValidateInput.php");
+require_once("model/login/UserSession.php");
 
 session_start();
 
@@ -29,7 +28,7 @@ class LoginController
 
         $this->loginView = new LoginView();
         $this->messageView = new MessageView();
-        $this->userStorage = new UserStorage($db);
+        $this->userStorage = new UserSession($db);
         
         $this->username = $this->loginView->getInputName();
         $this->password = $this->loginView->getInputPassword();

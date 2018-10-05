@@ -1,9 +1,9 @@
 <?php
 require_once("LoginController.php");
 require_once("RegisterController.php");
-require_once("model/DataBase.php");
-require_once("view/NavigationView.php");
-require_once("view/LayoutView.php");
+require_once("model/login/DataBase.php");
+require_once("view/login/NavigationView.php");
+require_once("view/login/LayoutView.php");
 
 class MainController{
 

@@ -1,6 +1,6 @@
 <?php
 //TODO change classname or break out session and cookie
-class UserStorage {
+class UserSession {
 	private static $userSession = "Model::UserSession";
 	private $db;
 

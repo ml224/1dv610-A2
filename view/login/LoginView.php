@@ -63,6 +63,7 @@ class LoginView {
 
 	private function generateLogoutButtonHTML($message) {
 		return '
+			<h2>Logged in</h2>
 			<form  method="post" >
 				<p id="' . self::$loginMessage . '">' . $message .'</p>
 				<input type="submit" name="' . self::$logout . '" value="logout"/>
@@ -72,6 +73,7 @@ class LoginView {
 
 	private function generateLoginFormHTML($message) {
 		return '
+		<h2>Not logged in</h2>
 		<a href="?register=true">Register a new user</a>
 		<form method="post" action="/"> 
 				<fieldset>

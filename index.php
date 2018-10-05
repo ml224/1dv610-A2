@@ -1,7 +1,6 @@
 <?php
 
-require_once('controller/MainController.php');
-require_once('model/DataBase.php');
+require_once('controller/login/MainController.php');
 error_reporting(E_ALL);
 ini_set('display_errors', 'On');
 

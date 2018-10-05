@@ -16,24 +16,19 @@ class LayoutView {
           <meta charset="utf-8">
           <title>Login Assignment</title>
         </head>
+        <body>
           <h1>Assignment 2</h1>
-          '.$this->loginMessage($isLoggedIn).'
-          
+    
           <div class="container">
-          
+    
              ' . $pageContent . '
               
+              <div id="footer">
               ' . $this->dateView->show() . '
+              </div>
           </div>
          </body>
       </html>
     ';
-  }
-
-  private function loginMessage($isLoggedIn) {
-    if ($isLoggedIn)
-      return '<h2>Logged in</h2>';
-    
-    return '<h2>Not logged in</h2>';
   }
 }
