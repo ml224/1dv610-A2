@@ -1,6 +1,6 @@
 <?php
 
-require_once("DateTimeView.php");
+require_once("login/DateTimeView.php");
 
 class LayoutView {
   private $dateView;
@@ -9,7 +9,7 @@ class LayoutView {
     $this->dateView = new DateTimeView();
   }
   
-  public function render($pageContent, $isLoggedIn) {
+  public function echoPage($pageContent) {
     echo '<!DOCTYPE html>
       <html>
         <head>

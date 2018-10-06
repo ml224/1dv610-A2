@@ -1,7 +1,7 @@
 <?php
 
-require_once('view/login/RegisterView.php');
-require_once('view/login/MessageView.php');
+require_once('views/login/RegisterView.php');
+require_once('views/login/MessageView.php');
 
 class RegisterController{
     private $db;

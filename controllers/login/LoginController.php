@@ -1,9 +1,9 @@
 <?php
 
-require_once("view/login/LoginView.php");
-require_once("view/login/MessageView.php");
-require_once("model/login/ValidateInput.php");
-require_once("model/login/UserSession.php");
+require_once("views/login/LoginView.php");
+require_once("views/login/MessageView.php");
+require_once("models/login/ValidateInput.php");
+require_once("models/login/UserSession.php");
 
 session_start();
 
@@ -138,6 +138,4 @@ class LoginController
                 return $this->messageView->wrongNameOrPassword();
         }
     }
-
-    
 }

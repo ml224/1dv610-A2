@@ -1,11 +1,11 @@
 <?php
 
-require_once('controller/login/MainController.php');
+require_once('controllers/AppController.php');
 error_reporting(E_ALL);
 ini_set('display_errors', 'On');
 
-$controller = new MainController();
-$controller->renderLoginComponent();
+$app = new AppController();
+$app->echoPage();
 
 
 
