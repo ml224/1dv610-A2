@@ -1,9 +1,9 @@
 <?php
 
-require_once("views/login/LoginView.php");
-require_once("views/login/MessageView.php");
-require_once("models/login/ValidateInput.php");
-require_once("models/login/UserSession.php");
+require_once("../src/loginComponent/view/LoginView.php");
+require_once("../src/loginComponent/view/MessageView.php");
+require_once("../src/loginComponent/model/ValidateInput.php");
+require_once("../src/loginComponent/model/UserSession.php");
 
 session_start();
 

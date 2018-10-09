@@ -1,6 +1,6 @@
 <?php
 
-require_once("login/DateTimeView.php");
+require_once("DateTimeView.php");
 
 class LayoutView {
   private $dateView;
@@ -9,23 +9,27 @@ class LayoutView {
     $this->dateView = new DateTimeView();
   }
   
-  public function echoPage($pageContent) {
+  public function echoPage($loginComponent, $galleryComponent) {
     echo '<!DOCTYPE html>
       <html>
         <head>
+          <link rel="stylesheet" type="text/css" href="/css/style.css" />
           <meta charset="utf-8">
           <title>Login Assignment</title>
         </head>
         <body>
           <h1>Assignment 2</h1>
-    
           <div class="container">
-    
-             ' . $pageContent . '
-              
-              <div id="footer">
+            <div class="login-component">
+             ' . $loginComponent . '
+            </div>
+            <div class="gallery-component">
+            ' . $galleryComponent . '
+            </div>
+            <div id="footer">
+            <hr>
               ' . $this->dateView->show() . '
-              </div>
+            </div>
           </div>
          </body>
       </html>

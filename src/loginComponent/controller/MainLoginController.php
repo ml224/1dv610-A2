@@ -1,8 +1,7 @@
 <?php
 require_once("LoginController.php");
 require_once("RegisterController.php");
-require_once("models/login/DataBase.php");
-require_once("views/login/NavigationView.php");
+require_once("../src/loginComponent/model/DataBase.php");
 
 class MainLoginController{
 
@@ -15,12 +14,16 @@ class MainLoginController{
     private $isLoggedIn;
     private $pageContent;
 
-    function __construct(){
-        $this->db = new DataBase();
-        $this->navigationView = new NavigationView();
+    function __construct($navigationView){
+        $this->navigationView = $navigationView;
+        $this->db = new DataBase($navigationView->isDev());
 
-        $this->loginController = new LoginController($this->db, $this->navigationView);
-        $this->registerController = new RegisterController($this->db, $this->navigationView);
+        $this->loginController = new LoginController($this->db, $navigationView);
+        $this->registerController = new RegisterController($this->db, $navigationView);
+    }
+
+    public function isLoggedIn(){
+        return $this->loginController->userLoggedIn();
     }
 
     public function renderLoginComponent(){

@@ -1,0 +1,36 @@
+body{
+    font-family: Verdana, Geneva, sans-serif;
+}
+
+.login-component{
+    width: auto;
+}
+
+.login-component a{
+    color: black;
+    font-size:20px;
+    padding:5px;
+    text-align: right;
+}
+
+.login-component a:hover{
+    background-color: #99d099;
+    color: white;
+    border-radius: 4px;
+}
+
+.gallery-component{
+    margin-top: 10px;
+}
+
+.gallery-component img{
+    width: 500px;
+    height: auto;
+}
+
+#footer{
+    position: fixed;
+    left: 10px;
+    bottom: 0;
+    width: 100%;
+}
