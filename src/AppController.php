@@ -8,19 +8,17 @@ require_once("layoutComponent/NavigationView.php");
 class AppController{
     private $layout;
     private $mainLoginController;
-    private $galleryController;
 
     function __construct(){
-        $this->navigationView = new NavigationView();
         $this->layout = new LayoutView();
-        $this->mainLoginController = new MainLoginController($this->navigationView);
-        $this->galleryController = new GalleryController($this->mainLoginController->isLoggedIn());
-        
+        $this->mainLoginController = new MainLoginController(new NavigationView());
+        $this->galleryController = new GalleryController();
     }
 
     public function echoPage(){
         $loginComponent = $this->mainLoginController->renderLoginComponent();
-        $gallery = $this->galleryController->renderGalleryComponent();
-        return $this->layout->echoPage($loginComponent, $gallery);
+        $galleryComponent = $this->galleryController->renderGalleryComponent($this->mainLoginController->isLoggedIn());
+        
+        return $this->layout->echoPage($loginComponent, $galleryComponent);
     }
 }

@@ -7,7 +7,6 @@ class NavigationView{
     private static $newUser = "new_user";
     private static $gallery = "gallery";
   
-    private static $relativeRegisterUrl = "?register=true";
     private static $relativeGalleryUrl = "?gallery=true";
 
     private $baseUrl;  

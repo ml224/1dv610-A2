@@ -60,6 +60,7 @@ class LoginController
         return $this->loginView->render($this->isLoggedIn, $this->getLoginMessage());
     }
 
+    //TODO place in validator
     private function isLoggedIn(){
         if($this->cookie){
             if($this->db->cookieExists($this->cookie))
@@ -83,10 +84,12 @@ class LoginController
             }
     }
 
+    //TODO place in validator
     private function nameAndPasswordProvided(){
         return $this->username && $this->password;
     }
 
+    //TODO place in validator
     private function successfulLoginAttempt(){
         return ($this->db->userExists($this->username) && $this->db->passwordIsCorrect($this->username, $this->password));
     }

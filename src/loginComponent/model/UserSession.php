@@ -21,6 +21,8 @@ class UserSession {
 		$_SESSION[self::$userSession] = $username . $random;
 
 		//cookie will be compared with session to ensure session not altered
+		//will be secure in production, where safe and httponly will be specified
+		//no way to steel or alter cookie if httponly and safe
 		setcookie(self::$userSession, $username . $random, 0, '/');
 	}
 
