@@ -1,11 +1,14 @@
 <?php
 
 class Image{
-    private static $imageUploaded = "Image::ImageUploaded";
+    private static $imageStored = "Image::ImageStored";
 
+    private $file;
     private $fileName;
+    private $newFileName;
     private $fileSize;
     private $tmpName;
+
 
     function __construct($file){
         $this->fileName = $file['name'];
@@ -13,46 +16,53 @@ class Image{
         $this->tmpName = $file['tmp_name'];
     }
 
-    public function saveImage(){
-        $this->setImageSession();
+    public function saveImage() : void {         
+            $this->throwExceptionIfInvalid();
 
-        //TODO check to see if you can create your own error types instead of 
-        //relying on messagess
-        if($this->invalidFileType()){
-            throw new Exception("invalid file type");
-        } 
+            $this->newFileName = $this->createNewName();
+            $newImagePath = "images/" . $this->newFileName;
+
+            if(move_uploaded_file($this->tmpName, $newImagePath)){
+                $this->resizeImage($newImagePath);
+            } else{
+                throw new Exception("unknown error");
+            }
+    }
+
+    private function throwExceptionIfInvalid(){
+        //TODO create own error types instead of 
+        //relying on messages?
+        if(!$this->fileName){
+            throw new Exception("no file");
+        }
         if($this->invalidSize()){
             throw new Exception("invalid size");
         }
-        else{
-            $targetPath = "images/" . basename($this->fileName);
-
-            if(!move_uploaded_file($this->tmpName, $targetPath)){
-                throw new Exception("unknown error");
-            }
+        if($this->invalidFileType()){
+            throw new Exception("invalid file type");
         }
     }
 
-    public function fileSessionSet($fileName){
-        $currentSession = $_SESSION[self::$imageUploaded];
-        
-        if(isset($currentSession)){
-            return $currentSession === $fileName;
-        }
-    }
-
-    public function invalidFileType(){
-        //TODO: add functionality to test if jpg/jpeg
-        return false;
-    }
-
-    public function invalidSize(){
+    private function invalidSize(){
         //img not saved in tmp if too large, therefor size 0
         return $this->fileSize === 0;
     }
 
-    private function setImageSession(){
-        echo $this->fileName;
-        $_SESSION[self::$imageUploaded] = $this->fileName;
+    private function invalidFileType(){
+        $fileType = getimagesize($this->tmpName)['mime'];
+        return $fileType !== "image/jpeg";
+    }
+
+    private function createNewName(){
+        $temp = explode(".", $this->fileName);
+        return round(microtime(true)) . '.' . end($temp);
+    }
+
+    private function resizeImage($filePath){
+    //TODO: IMPLEMENT! 
+    }
+
+    public function getNewFileName(){
+        return $this->newFileName;
     }
 }

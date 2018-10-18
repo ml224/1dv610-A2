@@ -1,28 +1,16 @@
 <?php
 
-class DataBase{
+class UserDatabase{
     private $mysqli;
 
-    public function DataBase($isDev){
-        $this->connectDB($isDev);
+    function __construct($mysqli){
+        $this->mysqli = $mysqli;    
     }
     
-    private function connectDB($isDev){
-        $this->mysqli = $isDev ?
-        new mysqli("localhost", $_ENV["DEV_DB_USERNAME"], $_ENV["DEV_DB_PASSWORD"], $_ENV["DEV_DB_NAME"]):
-        new mysqli("localhost", $_ENV["PROD_DB_USERNAME"], $_ENV["PROD_DB_PASSWORD"], $_ENV["PROD_DB_NAME"]);
-             
-        
-        
-        if ($this->mysqli->connect_error) {
-            die("Connection failed: " . $this->mysqli->connect_error);
-        }
-    }
-
     public function registerUser($name, $password){
-        if($this->userExists($name))
+        if($this->userExists($name)){
             throw new Exception("Username already exists");
-        
+        }
         
         $hashed = password_hash($password, PASSWORD_DEFAULT);
         
@@ -62,20 +50,23 @@ class DataBase{
         $row = $result->fetch_assoc();
         $stmt->close();
         
-        if($row)
+        if($row){
             return true;
+        }
         
         return false;
     }
 
     public function storeCookie($name, $cookie){
-        if(!$this->userExists($name))
+        if(!$this->userExists($name)){
             throw new Exception("User does not exist");
+        }
 
         $stmt = $this->mysqli->prepare("UPDATE users SET cookie = ? WHERE username = ?");
         $stmt->bind_param("ss", $cookie, $name);
-        if(!$stmt->execute())
+        if(!$stmt->execute()){
             throw new Exception("Cookie not updated, something went wrong.");
+        }
         
         $stmt->close();
     }
@@ -84,8 +75,9 @@ class DataBase{
         $stmt = $this->mysqli->prepare("UPDATE users SET cookie = ? WHERE cookie = ?");
         $n = null;
         $stmt->bind_param("ss", $n, $cookie);
-        if(!$stmt->execute())
+        if(!$stmt->execute()){
             throw new Exception("Cookie not replaced with null value, something went wrong.");
+        }
         
         $stmt->close();
     }

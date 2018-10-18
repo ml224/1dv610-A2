@@ -22,7 +22,7 @@ class LoginController
     private $loginMessage;
     private $isLoggedIn;
 
-    function __construct(DataBase $db, NavigationView $nav){
+    function __construct(UserDatabase $db, LoginNavigationView $nav){
         $this->db = $db;
         $this->navigationView = $nav;
 

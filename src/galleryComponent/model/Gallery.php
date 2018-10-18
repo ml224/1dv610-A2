@@ -1,8 +1,8 @@
 <?php
 require_once("Image.php");
 
-class Images{    
-    public function getAll(){
+class Gallery{    
+    public function getImages(){
         return array_diff(scandir("images"), array('..', '.'));
     }
 

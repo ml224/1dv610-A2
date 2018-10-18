@@ -15,7 +15,7 @@ class RegisterController{
     private $repeatPassword;
     private $failOrSuccessMessage;
 
-    function __construct(DataBase $db, NavigationView $nav){
+    function __construct(UserDatabase $db, LoginNavigationView $nav){
         $this->messageView = new MessageView();
         $this->registerView = new RegisterView();
         $this->db = $db;

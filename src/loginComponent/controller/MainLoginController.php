@@ -1,25 +1,25 @@
 <?php
 require_once("LoginController.php");
 require_once("RegisterController.php");
-require_once("../src/loginComponent/model/DataBase.php");
+require_once("../src/loginComponent/model/UserDatabase.php");
+require_once("../src/loginComponent/view/LoginNavigationView.php");
 
 class MainLoginController{
 
     private $loginController;
     private $registerController;
-    private $layoutView;
-    private $db;
     private $navigationView;
+    private $db;
 
     private $isLoggedIn;
     private $pageContent;
 
-    function __construct($navigationView){
-        $this->navigationView = $navigationView;
-        $this->db = new DataBase($navigationView->isDev());
+    function __construct($baseUrl, $db){
+        $this->navigationView = new LoginNavigationView($baseUrl);
+        $this->db = new UserDatabase($db);
 
-        $this->loginController = new LoginController($this->db, $navigationView);
-        $this->registerController = new RegisterController($this->db, $navigationView);
+        $this->loginController = new LoginController($this->db, $this->navigationView);
+        $this->registerController = new RegisterController($this->db, $this->navigationView);
     }
 
     public function isLoggedIn(){

@@ -2,17 +2,10 @@
 class GalleryDatabase{
     private $mysqli;
 
-    function __construct(){
-        $this->connectDatabase();
+    function __construct($mysqli){
+        $this->mysqli = $mysqli;
     }
     
-    private function connectDatabase(){
-        $this->mysqli = new mysqli("localhost", "root", "", "gallery");
-        
-        if ($this->mysqli->connect_error) {
-            die("Connection failed: " . $this->mysqli->connect_error);
-        }
-    }
 
     public function addImage($username, $imageId){
         $stmt = $this->mysqli->prepare("INSERT INTO gallery (id, username) VALUES(?, ?)");

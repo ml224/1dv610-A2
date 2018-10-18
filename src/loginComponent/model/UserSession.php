@@ -4,7 +4,7 @@ class UserSession {
 	private static $userSession = "Model::UserSession";
 	private $db;
 
-	function __construct(DataBase $db){
+	function __construct(UserDatabase $db){
 		$this->db = $db;
 	}
 
