@@ -6,6 +6,7 @@ class LoginView {
 	private static $logout = 'LoginView::Logout';
 	private static $cookieName = 'LoginView::CookieName';
 	private static $cookiePassword = 'LoginView::CookiePassword';	
+	private static $cookieTime = 'LoginView::CookieTime';	
 	private static $keep = 'LoginView::KeepMeLoggedIn';
 	
 	private static $name = 'LoginView::UserName';
@@ -116,7 +117,7 @@ class LoginView {
 		return isset($_SESSION[self::$keep]);
 	}
 
-	private function cookieSet(){
+	public function cookieSet(){
 		return isset($_COOKIE[self::$cookiePassword]);
 	}
 	public function getCookiePassword(){
@@ -125,17 +126,17 @@ class LoginView {
 		}
 	}
 
-	public function clearCookie(){
-		if($this->cookieSet()){
-			unset($_COOKIE[self::$cookiePassword]);
-			unset($_SESSION[self::$keep]);
-		}
+	public function setCookie($cookie){
+		//expires in in 30 days
+		//TODO set secure and httponly in production
+		setcookie(self::$cookiePassword, $cookie, time()+60*60*24*30, '/');
 	}
 
-	public function getCookieName(){
-		if(isset($_SESSION[self::$cookieName])){
-			//same as cookie password
-			return $_SESSION[self::$cookieName];
-		}
+	public function clearCookie(){
+		setcookie($_COOKIE[self::$cookiePassword], null, -1, '/');
+	}
+
+	public function getCookie(){
+		return $_COOKIE[self::$cookiePassword];
 	}
 }

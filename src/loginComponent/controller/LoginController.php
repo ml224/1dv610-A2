@@ -32,14 +32,9 @@ class LoginController
         
         $this->username = $this->loginView->getInputName();
         $this->password = $this->loginView->getInputPassword();
-        $this->cookie = $this->loginView->getCookiePassword();
         $this->isLoggedIn = $this->isLoggedIn();
     }
 
-    //used in maincontroller 
-    public function userLoggedIn(){
-        return $this->isLoggedIn;
-    }
 
     public function getPageContent(){
         if($this->isLoggedIn)
@@ -62,24 +57,25 @@ class LoginController
 
     //TODO place in validator
     private function isLoggedIn(){
-        if($this->cookie){
-            if($this->db->cookieExists($this->cookie))
+        if($this->loginView->cookieSet()){
+            if($this->db->cookieExists($this->loginView->getCookie())){
                 return true;
+            } 
             else{
                 $this->loginMessage =  $this->messageView->wrongInformationInCookie();
                 return false;
             }
         }
         
-        if($this->userStorage->userSessionSet()){
-            return $this->userStorage->userSessionNotAltered();
+        if($this->userStorage->sessionSet()){
+            return $this->userStorage->sessionNotAltered();
         }
     }
 
     private function handleLoggedInUsers(){
         $this->isLoggedIn = true;
 
-            if(!$this->userStorage->userSessionSet()){
+            if(!$this->userStorage->sessionSet()){
                 $this->loginMessage = $this->messageView->welcomeBackWithCookie();
             }
     }
@@ -99,18 +95,27 @@ class LoginController
         $this->userStorage->setUserSession($this->username);          
         $this->loginMessage = $this->messageView->welcome();
 
-        if($this->loginView->keepLoggedIn())
-            $this->userStorage->setCookiePassword($this->username, $this->loginView->getCookieName());
+        if($this->loginView->keepLoggedIn()){
+            $random = $this->randomCookie();
+            $this->loginView->setCookie($random);
+    		$this->db->storeCookie($this->username, $random);
+        }
     }
+
+    private function randomCookie(){
+		return uniqid(php_uname('n'), true);
+	}
+
     
     private function handleLogout(){
         $this->loginMessage = $this->messageView->bye();
         $this->isLoggedIn = false;
             
-        if($this->cookie){
-            $this->userStorage->clearCookie($this->loginView->getCookieName(), $this->cookie);
+        if($this->loginView->cookieSet()){
+            $this->db->clearCookie($this->loginView->getCookie());
+            $this->loginView->clearCookie();
         }
-        if($this->userStorage->userSessionSet()){
+        if($this->userStorage->sessionSet()){
             $this->userStorage->unsetUserSession();
         }
     }
@@ -124,6 +129,7 @@ class LoginController
     
     }
 
+    //TODO  move to view & create model facade class to communicate with session and db
     private function getLoginMessage(){
         if($this->loginMessage)
             return $this->loginMessage;
@@ -140,5 +146,11 @@ class LoginController
             if($this->db->nameOrPasswordIncorrect($this->username, $this->password))
                 return $this->messageView->wrongNameOrPassword();
         }
+    }
+
+    
+    //used in maincontroller 
+    public function userLoggedIn(){
+        return $this->isLoggedIn;
     }
 }
