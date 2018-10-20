@@ -5,19 +5,9 @@ class UserSession {
 	private static $ip = "REMOTE_ADDR";
 	private static $agent = "HTTP_USER_AGENT";
 
-	private $db;
-
-	function __construct(UserDatabase $db){
-		$this->db = $db;
-	}
-
 	public function sessionSet(){ 
 		return isset($_SESSION[self::$user]);
 	}
-
-	/*public function userSessionNotAltered(){
-		return $_SESSION[self::$userSession] === $_COOKIE[self::$userSession];
-	}*/
 
 	public function setUserSession($username){
 		$_SESSION[self::$user] = $username;

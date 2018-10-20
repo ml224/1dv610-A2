@@ -131,10 +131,16 @@ class LoginView {
 		//TODO set secure and httponly in production
 		setcookie(self::$cookiePassword, $cookie, time()+60*60*24*30, '/');
 	}
-
+	
 	public function clearCookie(){
-		setcookie($_COOKIE[self::$cookiePassword], null, -1, '/');
+		setcookie(self::$cookiePassword, false, time()+60*60*24*30, '/');
 	}
+
+	public function randomCookie(){
+		return uniqid(php_uname('n'), true);
+	}
+
+
 
 	public function getCookie(){
 		return $_COOKIE[self::$cookiePassword];

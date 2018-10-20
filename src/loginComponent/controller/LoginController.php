@@ -96,15 +96,11 @@ class LoginController
         $this->loginMessage = $this->messageView->welcome();
 
         if($this->loginView->keepLoggedIn()){
-            $random = $this->randomCookie();
+            $random = $this->loginView->randomCookie();
             $this->loginView->setCookie($random);
     		$this->db->storeCookie($this->username, $random);
         }
     }
-
-    private function randomCookie(){
-		return uniqid(php_uname('n'), true);
-	}
 
     
     private function handleLogout(){
@@ -112,7 +108,8 @@ class LoginController
         $this->isLoggedIn = false;
             
         if($this->loginView->cookieSet()){
-            $this->db->clearCookie($this->loginView->getCookie());
+            $cookie = $this->loginView->getCookie();
+            $this->db->clearCookie($cookie);
             $this->loginView->clearCookie();
         }
         if($this->userStorage->sessionSet()){

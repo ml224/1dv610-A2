@@ -24,8 +24,9 @@ class UserDatabase{
     }
 
     public function userExists($name){
-        if($this->getUserArray($name))
+        if($this->getUserArray($name)){
             return true;
+        }
         
         return false;
     }
