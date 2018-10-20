@@ -12,12 +12,12 @@ class RegisterView{
 			$this->setSessionVariables();
     }
 
-    public function render($message){
+    public function render($message) : string {
 		$_SESSION[self::$message] = $message;
 		return $this->registerForm();
 	}
 
-	private function registerForm(){
+	private function registerForm() : string {
 		return '
 		<a href="/">Back to login</a>
 		<form method="post"> 

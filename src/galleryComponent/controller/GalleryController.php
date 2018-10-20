@@ -14,19 +14,16 @@ class GalleryController{
     private $imageModel;
     private $galleryDatabase;
 
-    private $isLoggedIn;
-
     function __construct($baseUrl, $db){
         $this->galleryView = new GalleryView();
         $this->navigationView = new GalleryNavigationView($baseUrl);
         $this->uploadView = new UploadView($this->navigationView);
 
         $this->db = new GalleryDatabase($db);
-
     }
 
-    public function renderGalleryComponent() : string {    
-        if($this->isLoggedIn){
+    public function renderGalleryComponent($isLoggedIn) : string {   
+        if($isLoggedIn){
             if($this->navigationView->errorLocation()){
                 return $this->uploadView->renderErrorHtml();
             }
@@ -46,7 +43,7 @@ class GalleryController{
             }
         }
         
-        return $this->galleryView->renderGalleryView($this->isLoggedIn);
+        return $this->galleryView->renderGalleryView($isLoggedIn);
         
     }
 

@@ -18,15 +18,13 @@ class GalleryView{
         $images = $this->getImages();
 
         $html = $this->uploadOptions();
-        /*if($images){
-            foreach($images as $image){
-                $html .= $this->imageHtml($image);
-            }
-        }*/
+        foreach($images as $image){
+            $html .= $this->imageHtml($image);
+        }
         return $html;
     }
 
-    private function getImages(){
+    private function getImages() : array {
         $gallery = new Gallery();
         return $gallery->getImages();
     }
@@ -52,7 +50,7 @@ class GalleryView{
         }
     }
 
-    private function imageTag($image){
+    private function imageTag($image) : string {
         return '<img src="images/' . $image .'">';
     }
 
@@ -69,11 +67,11 @@ class GalleryView{
         return isset($_POST[self::$uploadRequest]);
     }
 
-    public function deleteRequested(){
+    public function deleteRequested() : bool {
         return isset($_POST[self::$delete]);
     }
 
-    public function getImageId(){
+    public function getImageId() : string {
         return $_POST[self::$fileName];
     }
 }
