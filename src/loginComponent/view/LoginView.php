@@ -1,68 +1,26 @@
 <?php
 
 class LoginView {
-
 	private static $login = 'LoginView::Login';
 	private static $logout = 'LoginView::Logout';
 	private static $cookieName = 'LoginView::CookieName';
 	private static $cookiePassword = 'LoginView::CookiePassword';	
 	private static $cookieTime = 'LoginView::CookieTime';	
-	private static $keep = 'LoginView::KeepMeLoggedIn';
-	
+	private static $keep = 'LoginView::KeepMeLoggedIn';	
 	private static $name = 'LoginView::UserName';
 	private static $password = 'LoginView::Password';
 	private static $loginMessage = 'LoginView::Message';
 	
-	private $isLoggedIn;
+	private $customizedInputName;
 
-	function __construct(){
-		$this->unsetPreviousSessionVariables();
-		$this->setSessionVariables();
-	}
-
-	private function unsetPreviousSessionVariables(){
-		unset($_SESSION[self::$name]);
-		unset($_SESSION[self::$password]);
-		unset($_SESSION[self::$logout]);
-		unset($_SESSION[self::$keep]);
-	}
-
-	private function setSessionVariables(){
-		//TODO - set cookie in this class and dont share cookie name 
-		$_SESSION[self::$cookieName] = self::$cookiePassword;
-
-		if($this->loginAttempted()){
-			$_SESSION[self::$name] = $_POST[self::$name];
-			$_SESSION[self::$password] = $_POST[self::$password];
-		} 
-		if($this->logoutRequested()){
-			$_SESSION[self::$logout] = $_POST[self::$logout];
-		}
-		if($this->keepRequested())
-			$_SESSION[self::$keep] = $_POST[self::$keep];
-	}
-
-	public function loginAttempted(){
-		return isset($_POST[self::$name]);
-	}
-	
-	public function logoutRequested(){
-		return isset($_POST[self::$logout]);
-	}
-
-	private function keepRequested(){
-		return isset($_POST[self::$keep]);
-	}
-
-
-	public function render($isLoggedIn, $message) {
+	public function render($isLoggedIn, $message) : string {
 		if($isLoggedIn)
 			return $this->generateLogoutButtonHTML($message);
 		else
 			return $this->generateLoginFormHTML($message);
 	}
 
-	private function generateLogoutButtonHTML($message) {
+	private function generateLogoutButtonHTML($message) : string {
 		return '
 			<h2>Logged in</h2>
 			<form  method="post" >
@@ -72,7 +30,7 @@ class LoginView {
 		';
 	}
 
-	private function generateLoginFormHTML($message) {
+	private function generateLoginFormHTML($message) : string {
 		return '
 		<h2>Not logged in</h2>
 		<a href="?register=true">Register a new user</a>
@@ -96,53 +54,93 @@ class LoginView {
 		';
 	}
 
-	public function getInputName() {
-		if(isset($_SESSION[self::$name])){
-			return $_SESSION[self::$name];
+	public function getInputName() : string {
+		if($this->customizedInputName){
+			return $this->customizedInputName;
 		}
+		return $this->loginAttempted() ? $_POST[self::$name] : "";
 	}
-
-	public function getInputPassword() {
-		if(isset($_SESSION[self::$password])){
-			return $_SESSION[self::$password];
-		}
-	}
-
-	public function setInputName($name){
-		$_SESSION[self::$name] = $name;
-	}
-
 	
-	public function keepLoggedIn(){
-		return isset($_SESSION[self::$keep]);
+	public function loginAttempted() : bool {
+		return isset($_POST[self::$name]);
 	}
 
-	public function cookieSet(){
+	public function setInputName($name) : void {
+		$this->customizedInputName = $name;
+	}
+
+	public function getInputPassword() : string {
+		return $_POST[self::$password];
+	}
+	
+	public function keepLoggedIn() : bool {
+		return isset($_POST[self::$keep]);
+	}
+
+	public function cookieSet() : bool {
 		return isset($_COOKIE[self::$cookiePassword]);
 	}
-	public function getCookiePassword(){
-		if($this->cookieSet()){
-			return $_COOKIE[self::$cookiePassword];
-		}
+	
+	public function logoutRequested() : bool {
+		return isset($_POST[self::$logout]);
 	}
 
-	public function setCookie($cookie){
-		//expires in in 30 days
-		//TODO set secure and httponly in production
+	public function setCookie($cookie) : void {
 		setcookie(self::$cookiePassword, $cookie, time()+60*60*24*30, '/');
 	}
 	
-	public function clearCookie(){
+	public function clearCookie() : void {
 		setcookie(self::$cookiePassword, false, time()+60*60*24*30, '/');
 	}
 
-	public function randomCookie(){
+	public function randomCookie() : string {
 		return uniqid(php_uname('n'), true);
 	}
 
-
-
-	public function getCookie(){
+	public function getCookie() : string {
 		return $_COOKIE[self::$cookiePassword];
 	}
+
+	public function nameOrPasswordMissing() : bool {
+		return empty($_POST[self::$username]) || empty($_POST[self::$password]);
+	}
+
+	public function getMessageIfError(UserDatabase $db) : string {
+		if($this->loginAttempted()){
+			$name = $_POST[self::$name];
+			$psw = $_POST[self::$password];
+
+			if(empty($name)){
+				return "Username is missing";
+			}
+			if(empty($psw)){
+				return "Password is missing";
+			}
+			if($db->nameOrPasswordIncorrect($name, $psw)){
+				return "Wrong name or password";
+			}
+		}
+		
+		if($this->cookieSet() && !$db->cookieExists($this->getCookie())){
+			return "Wrong information in cookies";				
+		}
+
+		return "";
+	}
+
+	public function welcomeMessage() : string {
+        return "Welcome";
+	}
+	
+	public function cookieLoginMessage() : string {
+        return "Welcome back with cookie";
+	}
+
+    public function byeMessage() : string {
+        return "Bye bye!";
+	}
+	
+	public function newUserMessage(){
+        return "Registered new user.";
+    }
 }

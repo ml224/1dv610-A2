@@ -21,7 +21,7 @@ class LoginNavigationView{
       return isset($_GET[self::$newUser]);
     }
 
-    public function getNewUsername(){
+    public function getNewUsernameFromUrl(){
       return $_GET[self::$newUser];
     }
 

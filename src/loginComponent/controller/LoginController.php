@@ -1,7 +1,6 @@
 <?php
 
 require_once("../src/loginComponent/view/LoginView.php");
-require_once("../src/loginComponent/view/MessageView.php");
 require_once("../src/loginComponent/model/ValidateInput.php");
 require_once("../src/loginComponent/model/UserSession.php");
 
@@ -11,89 +10,87 @@ session_start();
 class LoginController
 {
     private $loginView;
-    private $messageView;
-    private $validator;
-    private $userStorage;
-
+    private $userSession;
     private $db;
-    private $cookie;
+
     private $username;
     private $password;
     private $loginMessage;
     private $isLoggedIn;
 
-    function __construct(UserDatabase $db, LoginNavigationView $nav){
+    function __construct(UserDatabase $db){
         $this->db = $db;
-        $this->navigationView = $nav;
-
         $this->loginView = new LoginView();
-        $this->messageView = new MessageView();
-        $this->userStorage = new UserSession($db);
+        $this->userSession = new UserSession();
         
-        $this->username = $this->loginView->getInputName();
-        $this->password = $this->loginView->getInputPassword();
         $this->isLoggedIn = $this->isLoggedIn();
+
+        if($this->loginView->loginAttempted()){
+            $this->username = $this->loginView->getInputName();
+            $this->password = $this->loginView->getInputPassword();
+        }
     }
 
+    private function isLoggedIn() : bool {
+        if($this->loginView->cookieSet()){
+            return $this->db->cookieExists($this->loginView->getCookie());
+        } 
+        if($this->userSession->sessionSet()){
+            return $this->userSession->sessionNotAltered();
+        }
+        return false;
+    }
 
-    public function getPageContent(){
-        if($this->isLoggedIn)
+    public function getPageContent(LoginNavigationView $nav) : string {
+        if($this->isLoggedIn){
             $this->handleLoggedInUsers();
-        
-        if(!$this->isLoggedIn && $this->nameAndPasswordProvided() && $this->successfulLoginAttempt())
+        }
+        if($this->successfulLoginAttempt()){
             $this->handleSuccessfulLogin();
-        
-       
-        if($this->isLoggedIn && $this->loginView->logoutRequested()){
-            $this->handleLogout();    
         }     
-
-        if($this->navigationView->userRegistered()){
-            $this->handleSuccessfulRegistration();
+        if($nav->userRegistered()){
+            $this->handleSuccessfulRegistration($nav);
         }
         
         return $this->loginView->render($this->isLoggedIn, $this->getLoginMessage());
     }
 
-    //TODO place in validator
-    private function isLoggedIn(){
-        if($this->loginView->cookieSet()){
-            if($this->db->cookieExists($this->loginView->getCookie())){
-                return true;
-            } 
-            else{
-                $this->loginMessage =  $this->messageView->wrongInformationInCookie();
-                return false;
-            }
-        }
-        
-        if($this->userStorage->sessionSet()){
-            return $this->userStorage->sessionNotAltered();
-        }
-    }
-
     private function handleLoggedInUsers(){
         $this->isLoggedIn = true;
 
-            if(!$this->userStorage->sessionSet()){
-                $this->loginMessage = $this->messageView->welcomeBackWithCookie();
-            }
+        if(!$this->userSession->sessionSet()){
+            $this->loginMessage = $this->loginView->cookieLoginMessage();
+        }
+        if($this->loginView->logoutRequested()){
+            $this->handleLogout();    
+        }
     }
 
-    //TODO place in validator
-    private function nameAndPasswordProvided(){
-        return $this->username && $this->password;
+    private function handleLogout() : void {
+        $this->loginMessage = $this->loginView->byeMessage();
+        $this->isLoggedIn = false;
+            
+        if($this->loginView->cookieSet()){
+            $this->db->clearCookie($this->loginView->getCookie());
+            $this->loginView->clearCookie();
+        }
+        if($this->userSession->sessionSet()){
+            $this->userSession->unsetUserSession();
+        }
     }
 
-    //TODO place in validator
-    private function successfulLoginAttempt(){
+    private function successfulLoginAttempt() : bool {
+        return !$this->isLoggedIn && $this->loginView->loginAttempted() && $this->credentialsCorrect();
+    }
+
+    private function credentialsCorrect() : bool {
         return ($this->db->userExists($this->username) && $this->db->passwordIsCorrect($this->username, $this->password));
     }
 
-    private function handleSuccessfulLogin(){
+    private function handleSuccessfulLogin() : void {
         $this->isLoggedIn = true;
-        $this->userStorage->setUserSession($this->username);          
-        $this->loginMessage = $this->messageView->welcome();
+        $this->userSession->setUserSession($this->username);          
+        $this->loginMessage = $this->loginView->welcomeMessage();
 
         if($this->loginView->keepLoggedIn()){
             $random = $this->loginView->randomCookie();
@@ -102,52 +99,17 @@ class LoginController
         }
     }
 
-    
-    private function handleLogout(){
-        $this->loginMessage = $this->messageView->bye();
-        $this->isLoggedIn = false;
-            
-        if($this->loginView->cookieSet()){
-            $cookie = $this->loginView->getCookie();
-            $this->db->clearCookie($cookie);
-            $this->loginView->clearCookie();
-        }
-        if($this->userStorage->sessionSet()){
-            $this->userStorage->unsetUserSession();
-        }
+    private function handleSuccessfulRegistration(LoginNavigationView $nav) : void {    
+        $this->loginMessage = $this->loginView->newUserMessage();
+        $this->loginView->setInputName($nav->getNewUsernameFromUrl());
     }
 
-    private function handleSuccessfulRegistration(){    
-        $this->loginMessage = $this->messageView->newUserRegistered();
-
-        //setting username in loginview session, so that username is displayed in login field
-        //after successful registration
-        $this->loginView->setInputName($this->navigationView->getNewUsername());
-    
+    private function getLoginMessage() : string {
+        return $this->loginMessage ? $this->loginMessage : $this->loginView->getMessageIfError($this->db);
     }
-
-    //TODO  move to view & create model facade class to communicate with session and db
-    private function getLoginMessage(){
-        if($this->loginMessage)
-            return $this->loginMessage;
-
-        if($this->loginView->loginAttempted()){
-            $inputValidator = new ValidateInput($this->username, $this->password);
-
-            if($inputValidator->usernameMissing())
-                return $this->messageView->usernameMissing();
-            
-            if($inputValidator->passwordMissing())
-                return $this->messageView->passwordMissing();
-                
-            if($this->db->nameOrPasswordIncorrect($this->username, $this->password))
-                return $this->messageView->wrongNameOrPassword();
-        }
-    }
-
     
     //used in maincontroller 
-    public function userLoggedIn(){
+    public function userLoggedIn() : bool {
         return $this->isLoggedIn;
     }
 }

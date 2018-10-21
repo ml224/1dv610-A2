@@ -1,26 +1,6 @@
 <?php
 class MessageView{
 
-    public function passwordMissing(){
-		return "Password is missing";
-    }
-	
-    public function usernameMissing(){
-        return "Username is missing";
-    }
-
-    public function wrongNameOrPassword(){
-        return "Wrong name or password";
-    }
-
-    public function welcome(){
-        return "Welcome";
-    }
-
-    public function bye(){
-        return "Bye bye!";
-    }
-
     public function passwordsDontMatch(){
         return "Passwords do not match.";
     }
@@ -39,18 +19,6 @@ class MessageView{
 
     public function invalidCharactersInUsername(){
         return "Username contains invalid characters.";
-    }
-
-    public function wrongInformationInCookie(){
-        return "Wrong information in cookies";
-    }
-    
-    public function welcomeBackWithCookie(){
-        return "Welcome back with cookie";
-    }
-    
-    public function newUserRegistered(){
-        return "Registered new user.";
     }
 
 }

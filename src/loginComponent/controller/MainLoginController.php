@@ -14,12 +14,13 @@ class MainLoginController{
     private $isLoggedIn;
     private $pageContent;
 
-    function __construct($baseUrl, $db){
+    function __construct($baseUrl, $mysqli){
         $this->navigationView = new LoginNavigationView($baseUrl);
-        $this->db = new UserDatabase($db);
-
-        $this->loginController = new LoginController($this->db, $this->navigationView);
-        $this->registerController = new RegisterController($this->db, $this->navigationView);
+        
+        
+        $db = new UserDatabase($mysqli);
+        $this->loginController = new LoginController($db);
+        $this->registerController = new RegisterController($db, $this->navigationView);
     }
 
     public function isLoggedIn(){
@@ -30,7 +31,7 @@ class MainLoginController{
         if($this->navigationView->registerViewRequested())
             return $this->registerController->getPageContent();
         
-        return $this->loginController->getPageContent();
+        return $this->loginController->getPageContent($this->navigationView);
     }
 
 }

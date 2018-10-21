@@ -35,5 +35,7 @@ class ValidateInput{
     return !($this->password === $repeatedPassword);
   }
 
-
+  public function credentialsCorrect($db){
+    $this->db->nameOrPasswordIncorrect($this->username, $this->password);
+  }
 }
