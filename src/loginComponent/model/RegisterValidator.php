@@ -1,6 +1,6 @@
 <?php
 
-class ValidateInput{
+class RegisterValidator{
   private $password;
   private $username;
 
@@ -8,16 +8,12 @@ class ValidateInput{
     $this->username = $name;
     $this->password = $password;
   }
-  
-  public function usernameMissing(){
-		return strlen($this->username) === 0;
-  }
-    
-  public function passwordMissing(){
-		return strlen($this->password) === 0;
+
+  public function invalidInput($repeat) : bool {
+    return $this->usernameTooShort() || $this->passwordTooShort() 
+    || $this->invalidCharacters()  || $this->passwordsDontMatch($repeat);
   }
 
-  
   public function usernameTooShort(){
     return strlen($this->username) < 3;
   }
@@ -26,16 +22,13 @@ class ValidateInput{
     return strlen($this->password) < 6;
   }
 
-  public function invalidCharactersInUsername(){
-    if(!$this->usernameMissing())
+  public function invalidCharacters(){
+    if(!empty($this->username)){
       return !ctype_alnum($this->username);
+    }
   }
  
   public function passwordsDontMatch($repeatedPassword){
     return !($this->password === $repeatedPassword);
-  }
-
-  public function credentialsCorrect($db){
-    $this->db->nameOrPasswordIncorrect($this->username, $this->password);
   }
 }

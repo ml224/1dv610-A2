@@ -1,7 +1,6 @@
 <?php
 
 require_once("../src/loginComponent/view/LoginView.php");
-require_once("../src/loginComponent/model/ValidateInput.php");
 require_once("../src/loginComponent/model/UserSession.php");
 
 session_start();

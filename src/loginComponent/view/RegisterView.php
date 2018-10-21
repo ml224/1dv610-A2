@@ -1,6 +1,5 @@
 <?php
 
-
 class RegisterView{
     private static $createUser = 'RegisterView::Create';
     private static $username = 'RegisterView::UserName';
@@ -8,24 +7,21 @@ class RegisterView{
 	private static $passwordRepeat = 'RegisterView::PasswordRepeat';
 	private static $message = 'RegisterView::Message';
 
-    function __construct(){
-			$this->setSessionVariables();
-    }
+	private $strippedUsername;
 
     public function render($message) : string {
-		$_SESSION[self::$message] = $message;
-		return $this->registerForm();
+		return $this->registerForm($message);
 	}
 
-	private function registerForm() : string {
+	private function registerForm($message) : string {
 		return '
 		<a href="/">Back to login</a>
 		<form method="post"> 
 				<fieldset>
 					<legend>Sign up - enter Username and password</legend>
-					<p id="'. self::$message .'">'. $_SESSION[self::$message] .'</p>
+					<p id="'. self::$message .'">'. $message .'</p>
 					<label for="' . self::$username . '">Username :</label>
-					<input type="text" id="' . self::$username . '" name="' . self::$username . '" value="'. $this->getUsername() .'" />
+					<input type="text" id="' . self::$username . '" name="' . self::$username . '" value="'. $this->getInputName() .'" />
 
 					<label for="' . self::$password . '">Password :</label>
 					<input type="password" id="' . self::$password . '" name="' . self::$password . '" />
@@ -37,43 +33,73 @@ class RegisterView{
 			</form>
 		';
 	}
-		
-    public function getUsername() {
-			if(isset($_SESSION[self::$username]))
-				return $_SESSION[self::$username];
-    }
-    
-    public function getPassword(){
-		if(isset($_SESSION[self::$password]))
-			return $_SESSION[self::$password];		
+
+	private function getInputName(){
+		if($this->registerRequested()){
+			return $this->strippedUsername ? $this->strippedUsername : $this->getUsername();	
+		}else{
+			return "";
+		}
 	}
 
-	public function getRepeatPassword(){
-		if(isset($_SESSION[self::$passwordRepeat]))
-			return $_SESSION[self::$passwordRepeat];		
-	}
-
-	public function setUsername($name){
-		$_SESSION[self::$username] = $name;
-	}
-    
-	private function setSessionVariables(){
-		if($this->registerNewUserRequested()){
-			$_SESSION[self::$username] = $_POST[self::$username];
-			$_SESSION[self::$password] = $_POST[self::$password];
-			$_SESSION[self::$passwordRepeat] = $_POST[self::$passwordRepeat];
-		} 
-    }
-
-    public function registerNewUserRequested(){
+    public function registerRequested() : bool {
 		return isset($_POST[self::$username]);
 	}
 
-	public function listMessagesHtml($messages){
-		$str = "";
+	public function stripUsername() : void {
+		$this->strippedUsername = strip_tags($_POST[self::$username]);
+	}
+
+    public function getUsername() : string {
+		return $_POST[self::$username];
+    }
+    
+    public function getPassword() : string {
+		return $_POST[self::$password];		
+	}
+
+	public function getRepeatPassword() : string {
+		return $_POST[self::$passwordRepeat];	
+	}
+
+	public function getErrorsHtml($validator) : string {
+		$errorArray = $this->errorArray($validator);
+		return $this->listErrorsHtml($errorArray);
+	}
+
+	private function errorArray($validator) : array {
+		$repeat = $_POST[self::$passwordRepeat];
+		$arr = array();
+
+		if($validator->usernameTooShort()){
+			$msg = "Username has too few characters, at least 3 characters.";
+			array_push($arr, $msg);
+		}
+		if($validator->passwordTooShort()){
+			$msg = "Password has too few characters, at least 6 characters.";
+			array_push($arr, $msg);
+		}
+		if($validator->invalidCharacters()){
+			$msg = "Username contains invalid characters.";
+			array_push($arr, $msg);
+		}
+		if($validator->passwordsDontMatch($repeat)){
+			$msg = "Passwords do not match.";
+			array_push($arr, $msg);
+		}
+
+		return $arr;
+	}
+
+	private function listErrorsHtml($messages) : string {
+		$str = 'Errors found! <br>';
 		foreach($messages as $message){
             $str .= $message . '<br>';
         }
         return $str;
+	}
+
+	public function userExistsMessage() : string {
+		return "User exists, pick another username.";
 	}
 }
