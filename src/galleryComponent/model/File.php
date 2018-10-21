@@ -28,7 +28,7 @@ class File{
             }
     }
 
-    private function throwExceptionIfInvalid(){
+    private function throwExceptionIfInvalid() : void {
         if(!$this->filename){
             throw new InvalidArgumentException("No file received");
         }
@@ -40,25 +40,25 @@ class File{
         }
     }
 
-    private function invalidFileType(){
+    private function invalidFileType() : bool {
         $fileType = getimagesize($this->tmp_name)['mime'];
         return $fileType !== "image/jpeg";
     }
 
-    private function newId(){
+    private function newId() : string {
         return round(microtime(true));
     }
 
-    private function createNewFileName($name){
+    private function createNewFileName($name) : string {
         $temp = explode(".", $this->filename);
         return $name . '.' . end($temp);
     }
 
-    private function resizeImage($filePath){
+    private function resizeImage($filePath) : void {
     //TODO: IMPLEMENT! 
     }
 
-    public function getNewFilename(){
+    public function getNewFilename() : string {
         return $this->newFilename;
     }
 }

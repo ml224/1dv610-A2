@@ -14,21 +14,21 @@ class RegisterValidator{
     || $this->invalidCharacters()  || $this->passwordsDontMatch($repeat);
   }
 
-  public function usernameTooShort(){
+  public function usernameTooShort() : bool {
     return strlen($this->username) < 3;
   }
 
-  public function passwordTooShort(){
+  public function passwordTooShort() : bool {
     return strlen($this->password) < 6;
   }
 
-  public function invalidCharacters(){
+  public function invalidCharacters() : bool {
     if(!empty($this->username)){
       return !ctype_alnum($this->username);
     }
   }
  
-  public function passwordsDontMatch($repeatedPassword){
+  public function passwordsDontMatch($repeatedPassword) : bool {
     return !($this->password === $repeatedPassword);
   }
 }

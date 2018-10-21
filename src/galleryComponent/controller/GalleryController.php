@@ -53,7 +53,7 @@ class GalleryController{
         }
     }
 
-    private function deleteFile(){
+    private function deleteFile() : void{
         $filename = $this->galleryView->getFilename();
         try{
             $this->gallery->deleteFile($filename);
@@ -61,6 +61,7 @@ class GalleryController{
             header('Location: ' . $url);
         }
         catch(Exception $e){
+            //TODO implement! Not throwing an exception currently...
             echo $e->getMessage();
         }
     }

@@ -7,7 +7,7 @@ class Gallery{
         $this->pathToImages = $nav->pathToImages();
     }
 
-    public function getImages(){
+    public function getImages() : array {
         return array_diff(scandir($this->pathToImages), array('..', '.'));
     }
 
@@ -16,7 +16,7 @@ class Gallery{
         //compare db result with file names in getAll
     }
 
-    public function deleteFile($filename){
+    public function deleteFile($filename) : void {
         //TODO add error handling functionality
         unlink( $this->pathToImages . "/" . $filename);
     }

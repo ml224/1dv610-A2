@@ -1,7 +1,8 @@
 <?php
 	date_default_timezone_set('Europe/Stockholm');
 	class DateTimeView {
-		public function show() {
+
+		public function show() : string {
 
 		$year = date("Y");
 		$month = date("F"); 

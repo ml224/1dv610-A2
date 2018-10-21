@@ -140,7 +140,7 @@ class LoginView {
         return "Bye bye!";
 	}
 	
-	public function newUserMessage(){
+	public function newUserMessage() : string {
         return "Registered new user.";
     }
 }

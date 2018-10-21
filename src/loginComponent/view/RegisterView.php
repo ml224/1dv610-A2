@@ -30,7 +30,7 @@ class RegisterView{
 		';
 	}
 
-	private function getInputName(){
+	private function getInputName() : string {
 		if($this->registerRequested()){
 			return $this->strippedUsername ? $this->strippedUsername : $this->getUsername();	
 		}else{

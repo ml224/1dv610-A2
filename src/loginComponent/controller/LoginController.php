@@ -56,7 +56,7 @@ class LoginController
         return $this->loginView->render($this->isLoggedIn, $this->getLoginMessage());
     }
 
-    private function handleLoggedInUsers(){
+    private function handleLoggedInUsers() : void {
         $this->isLoggedIn = true;
 
         if(!$this->userSession->sessionSet()){

@@ -6,7 +6,7 @@ class DatabaseInitiator{
         $this->connectDb($isDev);
     }
 
-    private function connectDB($isDev){
+    private function connectDB($isDev) : void {
         $this->mysqli = $isDev ?
         new mysqli("localhost", $_ENV["DEV_DB_USERNAME"], $_ENV["DEV_DB_PASSWORD"], $_ENV["DEV_DB_NAME"]):
         new mysqli("localhost", $_ENV["PROD_DB_USERNAME"], $_ENV["PROD_DB_PASSWORD"], $_ENV["PROD_DB_NAME"]);

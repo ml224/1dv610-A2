@@ -16,7 +16,7 @@ class GalleryNavigationView{
         return $this->baseUrl . '?'. self::$newImage .'='. $newFileName;
     }
     
-    public function getDeleteUrl($filename){
+    public function getDeleteUrl($filename) : string {
         return $this->baseUrl . '?' . self::$delete . '=' . $filename;    
     }
 
@@ -49,7 +49,7 @@ class GalleryNavigationView{
         return isset($_GET[self::$delete]);
     }
 
-    public function pathToImages(){
+    public function pathToImages() : string {
         return $this->imagePath;
     }
 }
