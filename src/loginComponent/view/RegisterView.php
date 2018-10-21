@@ -9,11 +9,7 @@ class RegisterView{
 
 	private $strippedUsername;
 
-    public function render($message) : string {
-		return $this->registerForm($message);
-	}
-
-	private function registerForm($message) : string {
+	public function renderRegisterForm($message) : string {
 		return '
 		<a href="/">Back to login</a>
 		<form method="post"> 
@@ -42,14 +38,15 @@ class RegisterView{
 		}
 	}
 
-    public function registerRequested() : bool {
-		return isset($_POST[self::$username]);
-	}
-
+	//used by controller if invalid tags in username
 	public function stripUsername() : void {
 		$this->strippedUsername = strip_tags($_POST[self::$username]);
 	}
 
+	public function registerRequested() : bool {
+		return isset($_POST[self::$username]);
+	}
+	
     public function getUsername() : string {
 		return $_POST[self::$username];
     }
@@ -62,12 +59,12 @@ class RegisterView{
 		return $_POST[self::$passwordRepeat];	
 	}
 
-	public function getErrorsHtml($validator) : string {
+	public function getErrorsHtml(RegisterValidator $validator) : string {
 		$errorArray = $this->errorArray($validator);
 		return $this->listErrorsHtml($errorArray);
 	}
 
-	private function errorArray($validator) : array {
+	private function errorArray(RegisterValidator $validator) : array {
 		$repeat = $_POST[self::$passwordRepeat];
 		$arr = array();
 

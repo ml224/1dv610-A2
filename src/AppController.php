@@ -10,10 +10,13 @@ class AppController{
         $layout = new LayoutView();
         $dbInitiator = new DatabaseInitiator($this->isDev());
         
-        $baseUrl = $this->getEnvUrl();
+        
+        //initiating DB connection in root 
+        //intending to add db functionality in Gallery component using same DB
         $mysqliConnection = $dbInitiator->getMysqli();
+        $baseUrl = $this->getEnvUrl();
         $loginController = new MainLoginController($baseUrl, $mysqliConnection);
-        $galleryController = new GalleryController($baseUrl, $mysqliConnection);
+        $galleryController = new GalleryController($baseUrl);
         
         $loginComponent = $loginController->renderLoginComponent();
         $galleryComponent = $galleryController->renderGalleryComponent($loginController->isLoggedIn());

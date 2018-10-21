@@ -9,29 +9,25 @@ class MainLoginController{
     private $loginController;
     private $registerController;
     private $navigationView;
-    private $db;
-
-    private $isLoggedIn;
-    private $pageContent;
 
     function __construct($baseUrl, $mysqli){
         $this->navigationView = new LoginNavigationView($baseUrl);
-        
         
         $db = new UserDatabase($mysqli);
         $this->loginController = new LoginController($db);
         $this->registerController = new RegisterController($db, $this->navigationView);
     }
 
-    public function isLoggedIn(){
+    public function renderLoginComponent() : string {
+        if($this->navigationView->registerViewRequested()){
+            return $this->registerController->getPageContent();
+        } else{
+            return $this->loginController->getPageContent($this->navigationView);
+        }
+    }
+    
+    //used by gallery component
+    public function isLoggedIn() : bool {
         return $this->loginController->userLoggedIn();
     }
-
-    public function renderLoginComponent(){
-        if($this->navigationView->registerViewRequested())
-            return $this->registerController->getPageContent();
-        
-        return $this->loginController->getPageContent($this->navigationView);
-    }
-
 }

@@ -29,11 +29,13 @@ class LoginController
             $this->password = $this->loginView->getInputPassword();
         }
     }
-
+    
     private function isLoggedIn() : bool {
         if($this->loginView->cookieSet()){
-            return $this->db->cookieExists($this->loginView->getCookie());
+            $cookie = $this->loginView->getCookie();
+            return $this->db->cookieExists($cookie);
         } 
+
         if($this->userSession->sessionSet()){
             return $this->userSession->sessionNotAltered();
         }
@@ -107,7 +109,7 @@ class LoginController
         return $this->loginMessage ? $this->loginMessage : $this->loginView->getMessageIfError($this->db);
     }
     
-    //used in maincontroller 
+    //will be used by components dependent on login state 
     public function userLoggedIn() : bool {
         return $this->isLoggedIn;
     }

@@ -26,7 +26,7 @@ class RegisterController{
             $this->handleRegisterRequest();
         }
 
-        return $this->registerView->render($this->message);
+        return $this->registerView->renderRegisterForm($this->message);
     }
 
     private function setValidatorAndCredentials(): void {

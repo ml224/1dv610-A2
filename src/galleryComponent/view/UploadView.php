@@ -1,15 +1,7 @@
 <?php
 
-require_once("../src/galleryComponent/model/Image.php");
-
 class UploadView{
     private static $imageFile = "UploadView::ImageFile";
-    
-    private $navigationView;
-
-    function __construct($nav){
-        $this->navigationView = $nav;
-    }
     
     public function uploadForm(){
         return '<form method="post" enctype="multipart/form-data" action="/">
@@ -20,56 +12,30 @@ class UploadView{
         
     }
 
-    public function renderErrorHtml() : string{
-        return $this->navigationView->getErrorMessageFromUrl() . $this->redirectLink();
+    public function noFileMessage(){
+        return "Image not uploaded. No file chosen, image not uploaded";
     }
 
-    public function renderSuccessHtml(){
-        return $this->successMessage() . $this->redirectLink() . '<br>' . $this->imageTag();      
+    public function invalidSizeMessage(){
+        return "Image not uploaded. Invalid size. Image cannot exceed 2MB";
+    } 
+
+    public function invalidTypeMessage(){
+        return "Image not uploaded. Invalid file type. File must be jpg/jpeg";
     }
 
-    private function successMessage(){
-        return "Image uploaded successfully!";
-    }
-
-    private function redirectLink(){
-        return '<a href="/">back to gallery</a>';
-    }
-
-    private function imageTag(){
-        return '<img src="'. $this->navigationView->newImagePath() .'">';
-    }
-
-    public function getErrorUrl($exceptionMessage){
-        $urlMessage = $this->getErrorMessage($exceptionMessage);
-        return $this->navigationView->createErrorUrl($urlMessage);
-    }
-
-    private function getErrorMessage($exceptionMessage){
-        switch($exceptionMessage){
-            case "request already processed":
-                return "";
-            case "no file":
-                return "Image not uploaded. No file chosen, image not uploaded";
-            case "invalid file type":
-                return "Image not uploaded. Invalid file type. File must be jpg/jpeg";
-            break;
-            case "invalid size":
-                return "Image not uploaded. Invalid size. Image cannot exceed 2MB";
-            break;
-            case "unknown error":
-                return "Image not uploaded. Something went wrong";
-            break;
-        }
+    public function unknownErrorMessage(){
+        return "Image not uploaded. Something went wrong";
     }
     
-    public function getFile(){
-        if($this->fileUploaded()){
-            return $_FILES[self::$imageFile];
-        } else{
-            throw new Exception("No file uploaded!");
-        }
+    public function getFilename(){
+        return $_FILES[self::$imageFile]['name'];
     }
+    
+    public function getTmpName(){
+        return $_FILES[self::$imageFile]['tmp_name'];
+    }
+
     public function fileUploaded(){
         return isset($_POST[self::$imageFile]);
     }

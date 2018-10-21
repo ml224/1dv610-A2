@@ -1,32 +1,29 @@
 <?php
-
 require_once("../src/galleryComponent/model/Gallery.php");
 
-class GalleryView{
-    private $gallery;
-    private $message;
-    private $isLoggedIn;
 
+class GalleryView{
     private static $uploadRequest = 'GalleryView::UploadRequest';
     private static $imageUploaded = 'GalleryView::ImageUploaded';
     private static $imageFile = "GalleryView::ImageFile";
     private static $delete = "GalleryView::Delete";
     private static $fileName = "GalleryView::FileName";
 
-    public function renderGalleryView($isLoggedIn) : string {
+    private $navigationView;
+    private $isLoggedIn;
+
+    public function renderGalleryView($isLoggedIn, GalleryNavigationView $nav) : string {
         $this->isLoggedIn = $isLoggedIn;
-        $images = $this->getImages();
+        $this->navigationView = $nav;
+
+        $gallery = new Gallery($nav);
+        $images = $gallery->getImages();        
 
         $html = $this->uploadOptions();
         foreach($images as $image){
             $html .= $this->imageHtml($image);
         }
         return $html;
-    }
-
-    private function getImages() : array {
-        $gallery = new Gallery();
-        return $gallery->getImages();
     }
 
     private function uploadOptions() : string {
@@ -51,7 +48,8 @@ class GalleryView{
     }
 
     private function imageTag($image) : string {
-        return '<img src="images/' . $image .'">';
+        $imgPath = $this->navigationView->getImagePath($image);
+        return '<img src="'. $imgPath .'">';
     }
 
     private function deleteButton($image) : string {
@@ -71,7 +69,7 @@ class GalleryView{
         return isset($_POST[self::$delete]);
     }
 
-    public function getImageId() : string {
+    public function getFilename() : string {
         return $_POST[self::$fileName];
     }
 }

@@ -42,7 +42,6 @@ class UserDatabase{
         return $row;
     }
 
-
     public function cookieExists($cookie){
         $stmt = $this->mysqli->prepare("SELECT cookie FROM users WHERE cookie = ?");
         $stmt->bind_param("s", $cookie);
@@ -82,6 +81,10 @@ class UserDatabase{
         
         $stmt->close();
     }
+    
+    public function nameOrPasswordIncorrect($name, $password){
+        return !$this->userExists($name) || !$this->passwordIsCorrect($name, $password); 
+    }
 
     public function passwordIsCorrect($name, $psw){
         return password_verify($psw, $this->correctPassword($name));
@@ -96,7 +99,4 @@ class UserDatabase{
         }
     }
     
-    public function nameOrPasswordIncorrect($name, $password){
-        return !$this->userExists($name) || !$this->passwordIsCorrect($name, $password); 
-    }
 }

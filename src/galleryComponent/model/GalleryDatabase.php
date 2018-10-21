@@ -18,7 +18,7 @@ class GalleryDatabase{
     }
 
     public function deleteImage($username, $imageId){
-
+        //TODO implement!
     }
 
     private function getImageDetails($imageId){

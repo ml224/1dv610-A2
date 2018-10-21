@@ -1,62 +1,99 @@
 <?php
 require_once("../src/galleryComponent/view/GalleryView.php");
 require_once("../src/galleryComponent/view/UploadView.php");
+require_once("../src/galleryComponent/view/RedirectView.php");
 require_once("../src/galleryComponent/view/GalleryNavigationView.php");
-
-require_once("../src/galleryComponent/model/Image.php");
-require_once("../src/galleryComponent/model/GalleryDatabase.php");
+require_once("../src/galleryComponent/model/File.php");
+require_once("../src/galleryComponent/model/Gallery.php");
 
 class GalleryController{
     private $galleryView;
     private $navigationView;
-    
-    private $galleryModel;
-    private $imageModel;
-    private $galleryDatabase;
+    private $gallery;
 
-    function __construct($baseUrl, $db){
+    private $pageContent;
+
+    function __construct($baseUrl){
         $this->galleryView = new GalleryView();
         $this->navigationView = new GalleryNavigationView($baseUrl);
-        $this->uploadView = new UploadView($this->navigationView);
-
-        $this->db = new GalleryDatabase($db);
+        $this->uploadView = new UploadView();
+        $this->redirectView = new RedirectView($this->navigationView);
+        $this->gallery = new Gallery($this->navigationView);
     }
 
-    public function renderGalleryComponent($isLoggedIn) : string {   
+    public function renderGalleryComponent($isLoggedIn) : string {
         if($isLoggedIn){
-            if($this->navigationView->errorLocation()){
-                return $this->uploadView->renderErrorHtml();
-            }
-            if($this->navigationView->newFileLocation()){
-                //TODO implement exception in case file does not exist
-                return $this->uploadView->renderSuccessHtml();
-            }
-            if($this->galleryView->uploadRequested()){
-                return $this->uploadView->uploadForm();
-            }
-            if($this->galleryView->deleteRequested()){
-                //TODO implement delete functionality
-                echo $this->galleryView->getImageId();
-            } 
-            if($this->uploadView->fileUploaded()){
-                $this->trySaveFile();
-            }
+            $this->handleLoggedInUsers();
+        }
+        if(!$this->pageContent){
+            $this->pageContent = $this->galleryView->renderGalleryView($isLoggedIn, $this->navigationView);
         }
         
-        return $this->galleryView->renderGalleryView($isLoggedIn);
-        
+        return $this->pageContent;
+    }
+
+    private function handleLoggedInUsers() : void {
+        if($this->navigationView->errorLocation()){
+            $this->pageContent = $this->redirectView->renderErrorHtml();
+        }
+        if($this->navigationView->newFileLocation()){
+            $this->pageContent = $this->redirectView->renderSuccessHtml();
+        }
+        if($this->galleryView->uploadRequested()){
+            $this->pageContent = $this->uploadView->uploadForm();
+        }
+        if($this->galleryView->deleteRequested()){
+            $this->deleteFile();
+        }
+        if($this->navigationView->deleteLocation()){
+            $this->pageContent = $this->redirectView->renderDeleteHtml();
+        } 
+        if($this->uploadView->fileUploaded()){
+            $this->trySaveFile();
+        }
+    }
+
+    private function deleteFile(){
+        $filename = $this->galleryView->getFilename();
+        try{
+            $this->gallery->deleteFile($filename);
+            $url = $this->navigationView->getDeleteUrl($filename);
+            header('Location: ' . $url);
+        }
+        catch(Exception $e){
+            echo $e->getMessage();
+        }
     }
 
     private function trySaveFile() : void {
-        $image = new Image($this->uploadView->getFile());
+        $file = new File($this->uploadView->getFilename(), $this->uploadView->getTmpName());
 
         try{    
-            $image->saveImage();
-            $url = $this->navigationView->getImageUrl($image->getNewFileName());
+            $file->saveFile();
+            //TODO add to DB once functionality to get current user is implemented
+
+            $url = $this->navigationView->getImageUrl($file->getNewFilename());
             header('Location: ' . $url);
-        }catch(Exception $e){
-            $url = $this->uploadView->getErrorUrl($e->getMessage());
-            header('Location: ' . $url);;
+        }
+        catch(InvalidArgumentException $e){
+            $msg = $this->uploadView->noFileMessage();
+            $url = $this->navigationView->getErrorUrl($msg);
+            header('Location: ' . $url);
+        }
+        catch(UnderflowException $e){
+            $msg = $this->uploadView->invalidSizeMessage();
+            $url = $this->navigationView->getErrorUrl($msg);
+            header('Location: ' . $url);
+        }
+        catch(DomainException $e){
+            $msg = $this->uploadView->invalidTypeMessage();
+            $url = $this->navigationView->getErrorUrl($msg);
+            header('Location: ' . $url);
+        }
+        catch(Exception $e){
+            $msg = $this->uploadView->unknownErrorMessage();
+            $url = $this->navigationView->getErrorUrl($msg);
+            header('Location: ' . $url);
         }
     }
 }
